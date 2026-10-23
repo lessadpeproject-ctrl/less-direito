@@ -34,24 +34,43 @@ Deno.serve(async (req) => {
   if (!valido) return json({ erro: "não autorizado" }, 401);
   if (!email) return json({ ok: true, ignorado: "sem e-mail" });
 
+  // Que produto é? "PRO" ou "Upgrade" liberam o plano PRO; "Pack" é complemento (order bump);
+  // o restante é o plano Completo.
+  const nomeProduto = String(body.Product?.product_name ?? body.product_name ?? "");
+  const n = nomeProduto.toLowerCase();
+  const tipo = /upgrade/.test(n) ? "upgrade" : /\bpro\b/.test(n) ? "pro" : /\bpack\b/.test(n) ? "pack" : "completo";
+
+  const { data: atual } = await sb.from("compradores").select("plano, status, produto").eq("email", email).maybeSingle();
+
   if (["paid", "approved", "order_approved"].includes(status) || evento === "order_approved") {
     const cpf = soDigitos(cliente.CPF ?? cliente.cpf);
-    const registro = {
+    const virouPro = tipo === "pro" || tipo === "upgrade" || atual?.plano === "pro";
+    const registro: Record<string, unknown> = {
       email,
       nome: cliente.full_name ?? cliente.name ?? null,
-      cpf_hash: cpf ? await sha256(cpf) : null,
-      pedido: String(body.order_ref ?? body.order_id ?? "") || null,
-      produto: body.Product?.product_name ?? null,
       status: "ativo",
+      plano: virouPro ? "pro" : "completo",
       atualizado_em: new Date().toISOString(),
     };
+    if (cpf) registro.cpf_hash = await sha256(cpf);
+    // o pedido e o produto guardados são os da compra principal (não do pack nem do upgrade)
+    if (!atual || tipo === "completo" || tipo === "pro") {
+      registro.pedido = String(body.order_ref ?? body.order_id ?? "") || null;
+      registro.produto = nomeProduto || null;
+    }
     const { error } = await sb.from("compradores").upsert(registro, { onConflict: "email" });
     if (error) return json({ erro: error.message }, 500);
-    return json({ ok: true, acesso: "liberado" });
+    return json({ ok: true, acesso: "liberado", plano: registro.plano, tipo });
   }
 
   if (["refunded", "chargedback", "chargeback"].includes(status) || ["order_refunded", "chargeback"].includes(evento)) {
-    await sb.from("compradores").update({ status: "reembolsado", atualizado_em: new Date().toISOString() }).eq("email", email);
+    const agora = new Date().toISOString();
+    if (tipo === "pack") return json({ ok: true, ignorado: "reembolso de pack" });
+    if (tipo === "upgrade") {
+      await sb.from("compradores").update({ plano: "completo", atualizado_em: agora }).eq("email", email);
+      return json({ ok: true, plano: "completo" });
+    }
+    await sb.from("compradores").update({ status: "reembolsado", atualizado_em: agora }).eq("email", email);
     return json({ ok: true, acesso: "bloqueado" });
   }
 
