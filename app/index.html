@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Plataforma Less Direito: gerador de prompts jurídicos, petições iniciais, estudo e skills para o Claude.">
+<link rel="icon" href="/img/logo.png">
+<title>Plataforma Less Direito</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,900&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: dark editorial studio — big lowercase Poppins headlines, marble statues lit from the side,
+   one carmine accent; the three tools sit as tilting marble "plates" that open a two-column workbench. */
+:root{
+  --bg:#0A0A0A; --surface:#141414; --surface-2:#1C1B1A; --line:#2D2A28; --text:#F3F1ED; --muted:#A39E98;
+  --red:#B3141B; --red-hi:#E2474E; --paper:#F3F1ED;
+  --display:"Poppins",system-ui,sans-serif; --body:"Poppins",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --r:4px; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.6;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1180px;margin:0 auto}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--red-hi);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)))}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px max(16px,env(safe-area-inset-left,0px))}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand img{height:36px;width:auto;display:block}
+.brand span{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);font-weight:600}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap}
+nav.tabs button{font:600 13px var(--body);color:var(--muted);background:none;border:1px solid transparent;border-radius:999px;padding:7px 14px;cursor:pointer}
+nav.tabs button[aria-selected="true"]{color:var(--text);border-color:var(--line);background:var(--surface)}
+nav.tabs button:hover{color:var(--text)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:32px;align-items:center;padding-block:40px 24px}
+.kicker{font-size:11px;letter-spacing:.32em;text-transform:uppercase;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:34px;height:2px;background:var(--red)}
+h1.mega{font-family:var(--display);font-weight:900;text-transform:lowercase;letter-spacing:-.055em;line-height:.88;font-size:clamp(52px,9vw,112px);margin:18px 0 18px;text-wrap:balance}
+h1.mega em{font-style:normal;color:var(--red-hi)}
+.lead{font-size:clamp(16px,1.6vw,19px);color:#DAD6D0;max-width:34em;margin:0 0 22px}
+.facts{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:0;list-style:none}
+.facts li{border:1px solid var(--line);padding:8px 14px;font-size:13px;color:var(--muted)}
+.facts b{color:var(--text);font-weight:800;font-size:15px;margin-right:4px;font-variant-numeric:tabular-nums}
+.tagline{margin-top:22px;font-size:13px;font-weight:700}
+.tagline mark{background:var(--red);color:#fff;padding:2px 6px}
+
+/* 3D stage */
+.stage{perspective:1100px;display:flex;justify-content:center}
+.bust{position:relative;width:min(100%,430px);aspect-ratio:4/5;transform-style:preserve-3d;transition:transform .25s ease-out;max-width:100%}
+.bust .ring{position:absolute;inset:8% 4% 18%;border-radius:50%;background:radial-gradient(closest-side,rgba(179,20,27,.55),rgba(179,20,27,0) 72%);transform:translateZ(-60px);filter:blur(6px)}
+.bust .photo{position:absolute;inset:0;background:url(/img/hero.jpg) 66% center/cover no-repeat;transform:translateZ(0);
+  -webkit-mask-image:radial-gradient(ellipse 62% 70% at 50% 38%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse 62% 70% at 50% 38%,#000 62%,transparent 100%)}
+.bust .glyph{position:absolute;right:-4%;bottom:6%;font:900 140px/1 var(--display);color:var(--red);transform:translateZ(80px);text-shadow:0 18px 40px rgba(0,0,0,.6)}
+.bust .plate{position:absolute;left:-6%;bottom:14%;transform:translateZ(110px);background:var(--paper);color:#0B0B0B;padding:10px 14px;font-size:12px;font-weight:700;letter-spacing:.06em;box-shadow:0 22px 50px rgba(0,0,0,.55)}
+.bust .plate small{display:block;font-weight:500;letter-spacing:0;color:#5b5752;font-size:11px}
+
+/* tool plates */
+.plates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding-block:8px 28px;perspective:1200px}
+.plateBtn{all:unset;box-sizing:border-box;cursor:pointer;position:relative;display:block;min-height:250px;border:1px solid var(--line);background:var(--surface) center 35%/cover no-repeat;
+  overflow:hidden;transform-style:preserve-3d;transition:transform .2s ease-out,border-color .2s}
+.plateBtn::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,.05) 20%,rgba(10,10,10,.92) 78%)}
+.plateBtn .t{position:absolute;left:18px;right:18px;bottom:16px;z-index:1;transform:translateZ(40px)}
+.plateBtn .n{font:900 13px var(--display);color:var(--red-hi);letter-spacing:.2em;text-transform:uppercase}
+.plateBtn h2{font:900 30px/.95 var(--display);letter-spacing:-.04em;text-transform:lowercase;margin:6px 0 6px}
+.plateBtn p{margin:0;font-size:13px;color:#cfcac4}
+.plateBtn[aria-selected="true"]{border-color:var(--red)}
+.plateBtn[aria-selected="true"] .n::after{content:" · aberto";color:var(--muted)}
+
+/* workbench */
+.bench{border-top:1px solid var(--line);padding-block:30px 60px}
+.bench-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:20px}
+.bench-head h2{font:900 clamp(32px,4.5vw,52px)/.92 var(--display);letter-spacing:-.05em;text-transform:lowercase;margin:6px 0 0}
+.bench-head p{color:var(--muted);max-width:42em;margin:6px 0 0}
+.grid2{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:22px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);padding:20px}
+.panel h3{font:800 13px var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-width:0}
+.field label{font-size:12px;font-weight:600;color:#d8d3cd}
+.field .hint{font-size:11.5px;color:var(--muted)}
+input[type=text],select,textarea{width:100%;background:var(--surface-2);color:var(--text);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font:14px var(--body)}
+textarea{min-height:88px;resize:vertical;line-height:1.5}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--red-hi)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{font:600 12px var(--body);color:var(--muted);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{color:#fff;background:var(--red);border-color:var(--red)}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:14px}
+.check input{accent-color:var(--red)}
+.out{position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px)}
+.out .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.out .meta{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+pre.prompt{margin:0;background:#0F0F0F;border:1px solid var(--line);border-left:3px solid var(--red);padding:16px;font:12.5px/1.55 var(--mono);color:#E7E3DD;
+  white-space:pre-wrap;word-break:break-word;max-height:62vh;overflow:auto}
+.btn{font:700 13px var(--body);border-radius:999px;padding:9px 16px;cursor:pointer;border:1px solid var(--line);background:var(--surface-2);color:var(--text);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+.btn:hover{border-color:var(--red-hi)}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.subtabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+.subtabs button{font:600 12.5px var(--body);color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;padding:8px 10px;cursor:pointer}
+.subtabs button[aria-selected="true"]{color:var(--text);border-color:var(--red)}
+.note{font-size:12.5px;color:var(--muted);border-left:2px solid var(--red);padding:2px 0 2px 10px;margin:12px 0 0}
+.steps{counter-reset:s;list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px;font-size:13px;align-items:start}
+.steps li::before{content:counter(s);width:28px;height:28px;background:var(--paper);color:#0B0B0B;font-weight:900;display:flex;align-items:center;justify-content:center}
+.files{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;padding:0;list-style:none}
+.files li{font:12px var(--mono);border:1px solid var(--line);padding:4px 8px;color:#d8d3cd}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--paper);color:#0B0B0B;font-weight:700;font-size:13px;padding:10px 16px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.toast.show{opacity:1}
+.example{display:inline-block;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--red-hi);border:1px solid var(--red);padding:2px 8px;margin-bottom:12px}
+.explain{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.explain .card{border:1px solid var(--line);background:var(--surface);padding:18px;min-width:0}
+.explain .card b{display:block;font:900 22px/1 var(--display);letter-spacing:-.03em;text-transform:lowercase;margin-bottom:8px}
+.explain .card b span{color:var(--red-hi)}
+.explain .card p{margin:0;font-size:13.5px;color:#d3cec8}
+.compare{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-bottom:22px}
+.compare > div{border:1px solid var(--line);padding:16px;min-width:0}
+.compare .k{font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:8px}
+.compare > .good{border-color:var(--red)}
+.compare pre{margin:8px 0 0;font:12px/1.5 var(--mono);white-space:pre-wrap;color:#d8d3cd}
+details.faq{border-top:1px solid var(--line);padding:12px 0}
+details.faq summary{cursor:pointer;font-weight:700;font-size:14px;list-style:none;display:flex;justify-content:space-between;gap:12px}
+details.faq summary::after{content:"+";color:var(--red-hi);font-weight:900}
+details.faq[open] summary::after{content:"–"}
+details.faq p{margin:8px 0 0;color:#cfcac4;font-size:13.5px;max-width:60em}
+.faqs{margin-top:26px}
+.faqs h3{font:800 13px var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.test{margin-top:12px;border:1px dashed var(--line);padding:12px;font-size:13px}
+.test b{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.search{position:relative}
+.count{font-size:11.5px;color:var(--muted)}
+@media (max-width:900px){.explain{grid-template-columns:1fr}.compare{grid-template-columns:1fr}}
+footer{border-top:1px solid var(--line);padding-block:24px 40px;color:var(--muted);font-size:12px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .stage{order:-1}
+  .bust{width:min(100%,340px)}
+  .grid2{grid-template-columns:1fr}
+  .out{position:static}
+}
+@media (max-width:640px){
+  .plates{grid-template-columns:1fr}
+  .plateBtn{min-height:170px}
+  .row{grid-template-columns:1fr}
+  nav.tabs button{padding:6px 10px;font-size:12px}
+  .brand span{display:none}
+  .bust .glyph{font-size:100px;right:2%}
+  .bust .plate{left:2%}
+}
+
+/* ---- login e plataforma ---- */
+.gate{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;padding-block:20px 60px;border-top:1px solid var(--line)}
+.gate .panel h2{font:900 34px/.95 var(--display);letter-spacing:-.045em;text-transform:lowercase;margin:4px 0 10px}
+.gate .panel p{color:#cfcac4;font-size:14px;margin:0 0 14px}
+.seg{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.seg button{font:600 13px var(--body);color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;padding:8px 10px;cursor:pointer}
+.seg button[aria-selected="true"]{color:var(--text);border-color:var(--red)}
+input[type=email],input[type=password]{width:100%;background:var(--surface-2);color:var(--text);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font:14px var(--body)}
+.msg{font-size:13px;margin:8px 0 0;min-height:1.2em}
+.msg.err{color:var(--red-hi)} .msg.ok{color:#9fd19f}
+.buy{display:flex;flex-direction:column;justify-content:space-between;gap:14px;background:var(--surface) url(/img/universal.jpg) center 30%/cover no-repeat;position:relative;min-height:340px}
+.buy::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,.35),rgba(10,10,10,.92) 70%)}
+.buy > *{position:relative}
+.buy ul{margin:0;padding-left:18px;color:#e2ddd6;font-size:14px}
+.userbar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.userbar button{font:600 12px var(--body);color:var(--text);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.plates{grid-template-columns:repeat(4,minmax(0,1fr))}
+.mat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.mat .panel h3{margin-bottom:8px}
+.mat .panel p{color:#cfcac4;font-size:13.5px;margin:0 0 14px}
+.loading{padding:40px 0;color:var(--muted)}
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+@media (max-width:900px){.gate{grid-template-columns:1fr}.mat{grid-template-columns:1fr}.plates{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.plates{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="/img/logo.png" alt="Less Direito"><span>Plataforma</span></a>
+    <nav class="tabs" aria-label="Ferramentas" id="nav" hidden>
+      <button type="button" data-tool="universal" aria-selected="false">Universal</button>
+      <button type="button" data-tool="peticoes" aria-selected="true">Petições</button>
+      <button type="button" data-tool="estudo" aria-selected="false">Estudo</button>
+      <button type="button" data-tool="skills" aria-selected="false">Skills</button>
+      <button type="button" data-tool="materiais" aria-selected="false">Materiais</button>
+    </nav>
+    <div class="userbar" id="userbar"><span id="userEmail"></span><button type="button" id="btnSair" hidden>Sair</button><button type="button" id="btnEntrarTopo">Entrar</button></div>
+  </div>
+</header>
+
+<main class="wrap" id="inicio">
+  <section class="hero">
+    <div>
+      <div class="kicker">plataforma less direito</div>
+      <h1 class="mega">claude<br>no seu <em>direito</em></h1>
+      <p class="lead">Descreva o que precisa e a IA monta o prompt. Escolha a ação e receba o prompt completo da petição inicial. Escolha um tema e monte o seu Projeto de estudo. Preencha os dados do escritório e baixe as skills prontas para instalar no Claude.</p>
+      <ul class="facts">
+        <li><b id="nCausas">184</b>ações com prompt-mestre</li>
+        <li><b id="nTemas">9</b>temas de estudo + qualquer tema</li>
+        <li><b>9</b>skills personalizáveis</li>
+        <li><b>∞</b>gerador universal com IA</li>
+      </ul>
+      <div class="tagline"><mark>menos trabalho repetitivo.</mark> mais direito.</div>
+    </div>
+    <div class="stage">
+      <div class="bust tilt" data-max="9" aria-hidden="true">
+        <div class="ring"></div>
+        <div class="photo"></div>
+        <div class="plate">PROMPT-MESTRE<small>diagnóstico · estratégia · peça · checagem</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="gate" id="gate">
+    <div class="panel" id="authPanel">
+      <div class="kicker">área do aluno</div>
+      <h2>entrar na plataforma</h2>
+      <div class="seg" role="tablist">
+        <button type="button" data-modo="entrar" aria-selected="true">Entrar</button>
+        <button type="button" data-modo="criar" aria-selected="false">Primeiro acesso</button>
+        <button type="button" data-modo="criar" data-esqueci="1" aria-selected="false">Esqueci a senha</button>
+      </div>
+      <form id="fEntrar" autocomplete="on">
+        <div class="field"><label for="inEmail">E-mail</label><input type="email" id="inEmail" autocomplete="email" required></div>
+        <div class="field"><label for="inSenha">Senha</label><input type="password" id="inSenha" autocomplete="current-password" required></div>
+        <button class="btn primary" type="submit">Entrar</button>
+        <p class="msg" id="msgEntrar" role="status"></p>
+      </form>
+      <form id="fCriar" hidden autocomplete="off">
+        <p id="txtCriar">Use o mesmo e-mail e o CPF informados na compra. Você escolhe a sua senha agora.</p>
+        <div class="field"><label for="crEmail">E-mail da compra</label><input type="email" id="crEmail" autocomplete="email" required></div>
+        <div class="field"><label for="crCpf">CPF da compra (ou código do pedido)</label><input type="text" id="crCpf" inputmode="numeric" required></div>
+        <div class="row">
+          <div class="field"><label for="crSenha">Nova senha</label><input type="password" id="crSenha" autocomplete="new-password" minlength="8" required></div>
+          <div class="field"><label for="crSenha2">Repita a senha</label><input type="password" id="crSenha2" autocomplete="new-password" minlength="8" required></div>
+        </div>
+        <button class="btn primary" type="submit" id="btnCriar">Criar meu acesso</button>
+        <p class="msg" id="msgCriar" role="status"></p>
+      </form>
+    </div>
+    <div class="panel buy">
+      <div><div class="kicker">ainda não tem acesso?</div>
+      <h2 style="font:900 34px/.95 var(--display);letter-spacing:-.045em;text-transform:lowercase;margin:6px 0 12px">guia + plataforma</h2>
+      <ul><li>Guia "Claude no Direito" em PDF</li><li>Gerador universal de prompts com IA</li><li>Prompts-mestre de petição inicial para 184 ações</li><li>Projetos de estudo por tema</li><li>Editor de skills com download pronto</li></ul></div>
+      <div><a class="btn primary" href="/#oferta">Quero ter acesso</a>
+      <p class="hint" style="font-size:12px;color:var(--muted);margin:10px 0 0">Depois do pagamento, volte aqui e clique em "Primeiro acesso".</p></div>
+    </div>
+  </section>
+  <div class="loading" id="loading" hidden>Carregando suas ferramentas...</div>
+  <div id="app" hidden>
+  <section class="plates" aria-label="Escolha a ferramenta">
+    <button type="button" class="plateBtn tilt" data-max="6" data-tool="universal" aria-selected="false" style="background-image:url(/img/universal.jpg)">
+      <span class="t"><span class="n">00 · ia</span><h2>gerador<br>universal</h2><p>Descreva qualquer tarefa e receba o prompt pronto.</p></span>
+    </button>
+    <button type="button" class="plateBtn tilt" data-max="6" data-tool="peticoes" aria-selected="true" style="background-image:url(/img/peticoes.jpg)">
+      <span class="t"><span class="n">01 · gerador</span><h2>petições<br>iniciais</h2><p><span class="nC">184</span> ações de todas as áreas, ou a que você digitar.</p></span>
+    </button>
+    <button type="button" class="plateBtn tilt" data-max="6" data-tool="estudo" aria-selected="false" style="background-image:url(/img/estudo.jpg)">
+      <span class="t"><span class="n">02 · projeto</span><h2>estudo<br>temático</h2><p>BPC/LOAS, art. 5º, crimes, alimentos ou o tema que quiser.</p></span>
+    </button>
+    <button type="button" class="plateBtn tilt" data-max="6" data-tool="skills" aria-selected="false" style="background-image:url(/img/skills.jpg)">
+      <span class="t"><span class="n">03 · editor</span><h2>skills<br>do escritório</h2><p>Preencha os dados e baixe o .zip para o Claude.</p></span>
+    </button>
+  </section>
+
+  <!-- UNIVERSAL -->
+  <section class="bench" id="universal" data-panel="universal" hidden>
+    <div class="bench-head">
+      <div><div class="kicker">gerador universal com ia</div><h2>qualquer prompt</h2>
+      <p>Descreva o que você quer que o Claude faça. A IA transforma o pedido em um prompt completo, com papel, contexto, etapas, formato e regras de segurança jurídica.</p></div>
+    </div>
+    <div class="grid2">
+      <form class="panel" id="fUni" autocomplete="off">
+        <h3>exemplos rápidos</h3>
+        <div class="quick" id="uniQuick"></div>
+        <div class="field"><label for="uniObj">O que você quer?</label><textarea id="uniObj" style="min-height:120px">Quero um prompt para revisar uma apelação cível que eu escrevi, apontando argumentos fracos, erros de português e pedidos mal formulados.</textarea></div>
+        <div class="row">
+          <div class="field"><label for="uniArea">Área</label><select id="uniArea"><option>Geral</option><option>Cível</option><option>Consumidor</option><option>Família e sucessões</option><option>Previdenciário</option><option>Trabalhista</option><option>Criminal</option><option>Público e tributário</option><option>Empresarial</option><option>Estudo / OAB / concurso</option><option>Marketing jurídico</option><option>Gestão do escritório</option></select></div>
+          <div class="field"><label for="uniPub">Para quem é o resultado</label><input type="text" id="uniPub" value="juiz / tribunal"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="uniFmt">Formato</label><select id="uniFmt"><option>o mais adequado</option><option>peça jurídica completa</option><option>tabela</option><option>tópicos</option><option>e-mail ou mensagem</option><option>roteiro ou apresentação</option><option>checklist</option><option>questões com gabarito</option></select></div>
+          <div class="field"><label for="uniTom">Tom</label><select id="uniTom"><option>técnico</option><option>profissional</option><option>didático</option><option>acolhedor</option><option>persuasivo</option></select></div>
+        </div>
+        <div class="field"><label for="uniDet">Detalhes extras (opcional)</label><textarea id="uniDet" style="min-height:60px">A peça tem 18 páginas e trata de responsabilidade civil por acidente de trânsito.</textarea></div>
+        <div class="btns"><button type="submit" class="btn primary" id="uniGo">Gerar com IA</button><button type="button" class="btn" id="uniModelo">Montar sem IA</button></div>
+        <p class="msg" id="uniMsg" role="status"></p>
+      </form>
+      <div class="out">
+        <div class="bar"><b style="font-size:13px">Prompt gerado</b><span class="meta" id="uniMeta"></span></div>
+        <pre class="prompt" id="uniOut" tabindex="0">Descreva o pedido e clique em "Gerar com IA".</pre>
+        <div class="btns" style="margin-top:10px">
+          <button type="button" class="btn primary" data-copy="uniOut">Copiar prompt</button>
+          <a class="btn" href="https://claude.ai/new" target="_blank" rel="noopener">Abrir o Claude ↗</a>
+        </div>
+        <p class="note">O prompt é escrito por IA. Leia antes de usar e nunca coloque dados reais de clientes no pedido.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PETIÇÕES -->
+  <section class="bench" id="peticoes" data-panel="peticoes">
+    <div class="bench-head">
+      <div><div class="kicker">gerador de prompt-mestre</div><h2>petição inicial</h2>
+      <p>Escolha a ação, ou digite qualquer outra, e preencha a ficha com marcadores no lugar dos nomes. O prompt pede ao Claude o enquadramento completo (competência, rito, base legal, requisitos e prazos) e só redige depois que você aprovar a estratégia.</p></div>
+    </div>
+    <div class="grid2">
+      <form class="panel" id="fPet" autocomplete="off">
+        <span class="example">exemplo preenchido · troque pelos dados do seu caso</span>
+        <h3>1 · ação</h3>
+        <div class="chips" id="petAreas" role="group" aria-label="Área"></div>
+        <div class="field search"><label for="petBusca">Buscar ação</label><input type="text" id="petBusca" placeholder="Ex.: usucapião, alimentos, habeas corpus, PIX..."><span class="count" id="petCount"></span></div>
+        <div class="field"><label for="petCausa">Classe da ação</label><select id="petCausa" size="7"></select></div>
+        <div class="field" id="petOutraBox" hidden><label for="petOutra">Qual ação?</label><input type="text" id="petOutra" placeholder="Ex.: Ação de nulidade de cláusula de fidelidade"></div>
+        <h3>2 · ficha do caso</h3>
+        <div class="row">
+          <div class="field"><label for="petAutor">Cliente (marcador)</label><input type="text" id="petAutor" value="[AUTOR], 9 anos, representado pela mãe"></div>
+          <div class="field"><label for="petReu">Parte contrária</label><input type="text" id="petReu" value="INSS"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="petCidade">Cidade/UF</label><input type="text" id="petCidade" value="Camaçari/BA"></div>
+          <div class="field"><label for="petJuizo">Juízo ou rito (se já souber)</label><input type="text" id="petJuizo" placeholder="deixe em branco para o Claude indicar"></div>
+        </div>
+        <div class="field"><label for="petFatos">Fatos em ordem cronológica</label>
+          <textarea id="petFatos">03/2024 – diagnóstico de transtorno do espectro autista nível 2 (laudo neuropediatra).
+05/2025 – requerimento do BPC no INSS (DER 12/05/2025).
+08/2025 – indeferimento: "renda per capita superior ao limite".
+Família: mãe (diarista, renda variável ~R$ 900), avó (aposentada, 1 salário mínimo), a criança.</textarea></div>
+        <div class="field"><label for="petProvas">Provas e documentos disponíveis</label><textarea id="petProvas" style="min-height:60px">laudos médicos, relatório escolar, CadÚnico atualizado, comprovantes de gastos com terapias</textarea></div>
+        <div class="field"><label for="petObjetivo">O que o cliente quer</label><input type="text" id="petObjetivo" value="receber o benefício e os atrasados desde a DER"></div>
+        <div class="row">
+          <div class="field"><label for="petUrg">Urgência</label><select id="petUrg"><option value="sim" selected>Sim</option><option value="nao">Não</option></select></div>
+          <div class="field"><label for="petValores">Valores envolvidos</label><input type="text" id="petValores" value="terapias R$ 600/mês"></div>
+        </div>
+        <div class="field"><label for="petEspec">Outros detalhes importantes</label><textarea id="petEspec" style="min-height:60px">A avó recebe aposentadoria de 1 salário mínimo, que pode ser excluída do cálculo (conferir).</textarea></div>
+        <label class="check"><input type="checkbox" id="petGratuita" checked> Pedir justiça gratuita</label>
+      </form>
+      <div class="out">
+        <div class="bar"><b style="font-size:13px">Prompt gerado</b><span class="meta" id="petMeta"></span></div>
+        <pre class="prompt" id="petOut" tabindex="0"></pre>
+        <div class="btns" style="margin-top:10px">
+          <button type="button" class="btn primary" data-copy="petOut">Copiar prompt</button>
+          <a class="btn" href="https://claude.ai/new" target="_blank" rel="noopener">Abrir o Claude ↗</a>
+        </div>
+        <p class="note">Cole dentro de um Projeto da área, com suas peças-modelo e a legislação nos arquivos. Leis e entendimentos mudam: confira cada artigo e pesquise a jurisprudência atual antes de protocolar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESTUDO -->
+  <section class="bench" id="estudo" data-panel="estudo" hidden>
+    <div class="bench-head">
+      <div><div class="kicker">projeto de estudo temático</div><h2>estudar um tema</h2>
+      <p>Escolha um tema pronto ou digite o seu. A plataforma monta as instruções do Projeto, o plano de estudo, a lista de materiais, o simulado e o caminho até a peça.</p></div>
+    </div>
+    <div class="grid2">
+      <form class="panel" id="fEst" autocomplete="off">
+        <h3>1 · tema</h3>
+        <div class="chips" id="estTemas" role="group" aria-label="Temas prontos"></div>
+        <div class="field"><label for="estTema">Ou escreva o tema</label><input type="text" id="estTema" value="BPC/LOAS">
+          <span class="hint">Ex.: "Lei Maria da Penha — medidas protetivas", "Art. 5º, LXVIII (habeas corpus)", "Usucapião extrajudicial".</span></div>
+        <h3>2 · objetivo</h3>
+        <div class="row">
+          <div class="field"><label for="estObj">Para quê</label><select id="estObj">
+            <option>prova da OAB</option><option>concurso público</option><option>faculdade</option><option selected>prática profissional</option></select></div>
+          <div class="field"><label for="estNivel">Seu nível</label><select id="estNivel"><option>iniciante</option><option selected>intermediário</option><option>avançado</option></select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="estSem">Duração</label><select id="estSem"><option value="2">2 semanas</option><option value="4" selected>4 semanas</option><option value="6">6 semanas</option><option value="8">8 semanas</option></select></div>
+          <div class="field"><label for="estHoras">Horas por semana</label><select id="estHoras"><option>3</option><option selected>5</option><option>8</option><option>12</option></select></div>
+        </div>
+        <label class="check"><input type="checkbox" id="estPeca" checked> Incluir prática de petição inicial</label>
+        <ol class="steps">
+          <li>No Claude, crie um Projeto com o nome do tema.</li>
+          <li>Em Contexto, envie os materiais da aba "Materiais", baixados dos sites oficiais.</li>
+          <li>Em Instruções, cole o texto da aba "Instruções do Projeto".</li>
+          <li>Abra uma conversa no Projeto e use os outros prompts, um por vez.</li>
+        </ol>
+      </form>
+      <div class="out">
+        <div class="subtabs" role="tablist" id="estTabs">
+          <button type="button" role="tab" data-k="instr" aria-selected="true">Instruções do Projeto</button>
+          <button type="button" role="tab" data-k="plano" aria-selected="false">Plano de estudo</button>
+          <button type="button" role="tab" data-k="mat" aria-selected="false">Materiais</button>
+          <button type="button" role="tab" data-k="sim" aria-selected="false">Simulado</button>
+          <button type="button" role="tab" data-k="peca" aria-selected="false">Da teoria à peça</button>
+        </div>
+        <pre class="prompt" id="estOut" tabindex="0"></pre>
+        <div class="btns" style="margin-top:10px">
+          <button type="button" class="btn primary" data-copy="estOut">Copiar</button>
+          <a class="btn" href="https://claude.ai/projects" target="_blank" rel="noopener">Abrir meus Projetos ↗</a>
+        </div>
+        <p class="note">Baixe as normas sempre dos sites oficiais e anote a data. Material desatualizado gera resposta desatualizada.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="bench" id="skills" data-panel="skills" hidden>
+    <div class="bench-head">
+      <div><div class="kicker">editor de skills</div><h2>skills do escritório</h2>
+      <p>Escolha uma skill do kit ou crie uma do zero. Preencha os dados, confira o arquivo e baixe o .zip pronto para enviar ao Claude.</p></div>
+    </div>
+    <div class="explain">
+      <div class="card"><b>o que é <span>uma skill</span></b><p>É um manual de instruções que você entrega ao Claude uma única vez. Ele explica como fazer uma tarefa do seu escritório: os passos, as regras e o formato da resposta. Pense no manual que você daria a um estagiário novo.</p></div>
+      <div class="card"><b>por que <span>personalizar</span></b><p>Sem skill, você precisa explicar tudo de novo a cada conversa. Com a skill, o Claude já sabe o nome do escritório, a cidade, o tom e o jeito de trabalhar, e aplica sozinho sempre que a tarefa aparece.</p></div>
+      <div class="card"><b>como <span>funciona</span></b><p>A skill é uma pasta com um arquivo principal (SKILL.md) e, às vezes, arquivos de apoio. Aqui você só preenche os campos; o site monta a pasta e gera o .zip. No Claude, basta enviar esse .zip uma vez.</p></div>
+    </div>
+    <div class="compare">
+      <div><div class="k">sem skill · toda vez</div>Você escreve um pedido longo explicando o escritório, o tom, as regras e o formato.<pre>"Sou do escritório X, em Camaçari, atuo com previdenciário, escreva no tom acolhedor, não prometa resultado, use parágrafos curtos, explique esta decisão para o cliente..."</pre></div>
+      <div class="good"><div class="k">com skill · uma frase</div>Você só cola a decisão. O Claude reconhece a tarefa e segue a skill.<pre>"Explique esta decisão para o cliente: [cola a decisão]"</pre></div>
+    </div>
+    <div class="grid2">
+      <form class="panel" id="fSk" autocomplete="off">
+        <h3>1 · skill</h3>
+        <div class="field"><label for="skSel">Qual skill</label><select id="skSel"></select><span class="hint" id="skDesc"></span></div>
+        <div id="skCommon">
+          <h3>2 · dados do escritório</h3>
+          <div class="row">
+            <div class="field"><label for="skEsc">Escritório ou consultório</label><input type="text" id="skEsc" value="Lessa Advocacia (exemplo)"></div>
+            <div class="field"><label for="skResp">Responsável</label><input type="text" id="skResp" value="Dra. [NOME]"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="skCid">Cidade/UF</label><input type="text" id="skCid" value="Camaçari/BA"></div>
+            <div class="field"><label for="skTom">Tom</label><select id="skTom"><option>técnico e direto</option><option selected>acolhedor e profissional</option><option>formal</option></select></div>
+          </div>
+          <div class="field"><label for="skAreas">Áreas de atuação</label><input type="text" id="skAreas" value="previdenciário, família, consumidor"></div>
+          <div id="skExtra"></div>
+        </div>
+        <div id="skNew" hidden>
+          <h3>2 · sua skill</h3>
+          <div class="field"><label for="nkNome">Nome da skill</label><input type="text" id="nkNome" value="calculo-de-honorarios"><span class="hint">Minúsculas e hífens, até 64 caracteres.</span></div>
+          <div class="field"><label for="nkDesc">Quando o Claude deve usar</label><textarea id="nkDesc" style="min-height:60px">Use quando o usuário pedir proposta ou cálculo de honorários para um novo caso.</textarea><span class="hint" id="nkCount"></span></div>
+          <div class="field"><label for="nkPassos">Passos (um por linha)</label><textarea id="nkPassos">Pergunte a área, a fase e a complexidade do caso.
+Consulte a tabela de honorários do escritório.
+Calcule o valor e a forma de pagamento.
+Monte a proposta para o cliente.</textarea></div>
+          <div class="field"><label for="nkRegras">Regras (uma por linha)</label><textarea id="nkRegras" style="min-height:60px">Respeite os valores mínimos da tabela da OAB da seccional.
+Nunca prometa resultado.</textarea></div>
+          <div class="field"><label for="nkSaida">Formato da entrega</label><input type="text" id="nkSaida" value="proposta de 1 página com escopo, valor e forma de pagamento"></div>
+        </div>
+      </form>
+      <div class="out">
+        <div class="bar"><b style="font-size:13px">Arquivos da skill</b><span class="meta" id="skMeta"></span></div>
+        <ul class="files" id="skFiles"></ul>
+        <pre class="prompt" id="skOut" tabindex="0"></pre>
+        <div class="btns" style="margin-top:10px">
+          <button type="button" class="btn primary" id="skZip">Baixar .zip</button>
+          <button type="button" class="btn" data-copy="skOut">Copiar SKILL.md</button>
+          <a class="btn" href="https://claude.ai/customize/skills" target="_blank" rel="noopener">Abrir Skills no Claude ↗</a>
+        </div>
+        <ol class="steps">
+          <li>No Claude, em Configurações → Recursos, deixe "Executar código na nuvem" ligado.</li>
+          <li>Em Configurações → Skills, clique em Adicionar e envie o .zip.</li>
+          <li>Teste em um chat novo com um pedido que deveria acionar a skill.</li>
+        </ol>
+        <div class="test"><b>teste depois de instalar</b><span id="skTest"></span></div>
+        <p class="note" id="skNote">Skills ficam disponíveis nos planos pagos do Claude.</p>
+      </div>
+    </div>
+    <div class="faqs">
+      <h3>dúvidas frequentes</h3>
+      <details class="faq"><summary>Preciso saber programar?</summary><p>Não. A skill é escrita em texto comum. Você preenche os campos à esquerda, confere o texto à direita e baixa o arquivo.</p></details>
+      <details class="faq"><summary>O que faço com o arquivo .zip?</summary><p>Não precisa abrir. No Claude, vá em Configurações → Skills, clique em Adicionar e envie o .zip como ele veio. A skill aparece na lista, ligada.</p></details>
+      <details class="faq"><summary>Como sei que a skill está funcionando?</summary><p>Abra uma conversa nova e faça um pedido da tarefa, sem citar o nome da skill (use o teste logo acima). Na resposta, o Claude indica que está usando a skill. Se ele não usar, reescreva a descrição dizendo com mais clareza quando ela deve ser usada.</p></details>
+      <details class="faq"><summary>Qual plano do Claude preciso?</summary><p>Skills funcionam nos planos pagos (Pro, Max, Team e Enterprise), com a opção "Executar código na nuvem" ligada em Configurações → Recursos.</p></details>
+      <details class="faq"><summary>Posso mudar a skill depois?</summary><p>Sim. Volte aqui, ajuste os campos, baixe o novo .zip e envie de novo no Claude. Remova a versão antiga para não ficar com duas iguais.</p></details>
+      <details class="faq"><summary>Os dados que eu digito vão para algum lugar?</summary><p>Não. Tudo é montado no seu navegador e só sai daqui quando você copia o texto ou baixa o arquivo. Mesmo assim, não coloque dados de clientes na skill: use só dados do escritório.</p></details>
+      <details class="faq"><summary>Qual skill instalar primeiro?</summary><p>Comece pelo Anonimizador LGPD, que protege o sigilo antes de qualquer análise. Depois, a skill da tarefa que você mais repete: prazos, resumo para cliente ou petição no padrão do escritório.</p></details>
+    </div>
+  </section>
+
+  <section class="bench" id="materiais" data-panel="materiais" hidden>
+    <div class="bench-head">
+      <div><div class="kicker">seus materiais</div><h2>downloads</h2>
+      <p>Tudo o que veio com a sua compra. Baixe quantas vezes quiser.</p></div>
+    </div>
+    <div class="mat">
+      <div class="panel"><h3>guia em pdf</h3><p>"Claude no Direito": ética e sigilo, Projetos, skills, conectores, petições e rotinas.</p><button type="button" class="btn primary" id="btnPdf">Baixar o guia</button><p class="msg" id="msgPdf" role="status"></p></div>
+      <div class="panel"><h3>kit de skills</h3><p>As 8 skills jurídicas em um único .zip, prontas para enviar no Claude (uma por vez).</p><button type="button" class="btn primary" id="btnKit">Baixar o kit</button></div>
+      <div class="panel"><h3>suporte</h3><p>Dúvidas sobre o acesso ou a compra? Fale com a gente pelo Instagram <b>@lessdireito</b>.</p><a class="btn" href="https://instagram.com/lessdireito" target="_blank" rel="noopener">Abrir Instagram ↗</a></div>
+    </div>
+  </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Less Direito · @lessdireito</span>
+    <span>Material educativo independente, sem vínculo com a Anthropic. Confira leis e jurisprudência antes de usar qualquer peça.</span>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/js/jszip.min.js"></script>
+<script src="/js/supabase.js"></script>
+<script>
+function iniciarFerramentas(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const A=window.LD_ACOES||{}, T=window.LD_TEMAS||[], SK=window.LD_SKILLS||{};
+const TOTAL=Object.values(A).reduce((n,l)=>n+l.length,0);
+$('#nCausas').textContent=TOTAL; $$('.nC').forEach(e=>e.textContent=TOTAL); $('#nTemas').textContent=T.length;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200)}
+function v(id){const e=document.getElementById(id);return e?(e.type==='checkbox'?e.checked:e.value.trim()):''}
+
+/* ---------- tool switching ---------- */
+function openTool(k,scroll){
+  $$('[data-panel]').forEach(p=>p.hidden=p.dataset.panel!==k);
+  $$('[data-tool]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tool===k)));
+  try{localStorage.setItem('ld_tool',k)}catch(e){}
+  if(scroll){document.getElementById(k).scrollIntoView({behavior:'smooth',block:'start'})}
+}
+$$('[data-tool]').forEach(b=>b.addEventListener('click',()=>openTool(b.dataset.tool,true)));
+let start='universal'; const h=location.hash.replace('#','');
+if(['universal','peticoes','estudo','skills','materiais'].includes(h)) start=h; else {try{start=localStorage.getItem('ld_tool')||start}catch(e){}}
+openTool(start,false);
+
+/* ---------- 3D tilt ---------- */
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!reduce){$$('.tilt').forEach(el=>{
+  const max=+el.dataset.max||6;
+  el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    el.style.transform=`rotateY(${x*max*2}deg) rotateX(${-y*max*2}deg)`});
+  el.addEventListener('pointerleave',()=>el.style.transform='');
+});}
+
+/* ---------- copy ---------- */
+$$('[data-copy]').forEach(b=>b.addEventListener('click',()=>{
+  const el=document.getElementById(b.dataset.copy), txt=el.textContent;
+  const sel=()=>{const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Texto selecionado: use Ctrl+C')};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast('Copiado'),sel)}else sel();
+}));
+
+/* ---------- PETIÇÕES ---------- */
+const OUTRA='__outra';
+const areas=['Todas',...Object.keys(A)]; let areaSel='Todas';
+function renderAreas(){$('#petAreas').innerHTML='';areas.forEach(a=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=a;b.setAttribute('aria-pressed',String(a===areaSel));
+  b.onclick=()=>{areaSel=a;renderAreas();fillCausas();genPet()};$('#petAreas').appendChild(b)})}
+function norm(t){return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
+function fillCausas(keep){
+  const s=$('#petCausa'),q=norm(v('petBusca')),cur=keep||s.value;s.innerHTML='';let n=0;
+  Object.entries(A).forEach(([area,list])=>{if(areaSel!=='Todas'&&area!==areaSel)return;
+    const items=list.filter(x=>!q||norm(x).includes(q)||norm(area).includes(q));if(!items.length)return;
+    const g=document.createElement('optgroup');g.label=area;items.forEach(x=>{const o=document.createElement('option');o.value=area+'||'+x;o.textContent=x;g.appendChild(o);n++});s.appendChild(g)});
+  const g=document.createElement('optgroup');g.label='Não encontrou?';const o=document.createElement('option');o.value=OUTRA;o.textContent='Outra ação (digitar)';g.appendChild(o);s.appendChild(g);
+  $('#petCount').textContent=n+(n===1?' ação encontrada':' ações encontradas')+' · ou escolha "Outra ação"';
+  if(cur&&[...s.options].some(o=>o.value===cur))s.value=cur; else s.selectedIndex=0;
+  $('#petOutraBox').hidden=s.value!==OUTRA;
+}
+function genPet(){
+  let area,classe;const sel=$('#petCausa').value;
+  if(sel===OUTRA){classe=v('petOutra')||'[DIGITE A AÇÃO]';area=areaSel==='Todas'?'':areaSel}else{[area,classe]=sel.split('||')}
+  $('#petOutraBox').hidden=sel!==OUTRA;
+  const urg=v('petUrg')==='sim', nota=(window.LD_AREA_NOTAS||{})[area];
+  const txt=
+`Atue como advogado(a) sênior${area?' em '+area.toLowerCase():''}, com prática em ${v('petCidade')||'[CIDADE/UF]'}. Vamos construir uma petição inicial de: ${classe.toUpperCase()}.
+Trabalhe em 4 etapas. Não pule etapas e espere minha resposta entre elas.
+
+FICHA DO CASO (dados com marcadores, sem nomes reais)
+- Cliente: ${v('petAutor')||'[AUTOR]'}
+- Parte contrária: ${v('petReu')||'[RÉU]'}
+- Cidade/UF: ${v('petCidade')||'[CIDADE/UF]'}
+- Juízo ou rito informado: ${v('petJuizo')||'não informado (indique você)'}
+- Fatos em ordem cronológica:
+${(v('petFatos')||'[DATA – FATO]').split('\n').map(l=>'  '+l).join('\n')}
+- Provas e documentos: ${v('petProvas')||'[PROVAS]'}
+- O que o cliente quer: ${v('petObjetivo')||'[RESULTADO ESPERADO]'}
+- Urgência: ${urg?'sim':'não'}
+- Valores envolvidos: ${v('petValores')||'[VALORES]'}
+- Outros detalhes: ${v('petEspec')||'—'}
+- Justiça gratuita: ${v('petGratuita')?'sim':'não'}
+
+ETAPA 1 — DIAGNÓSTICO
+a) Confirme se "${classe}" é a medida adequada aos fatos. Se houver via mais eficaz ou pedidos que devam ser cumulados, explique.
+b) Competência: justiça, foro e juízo (ou juizado), e o rito ou procedimento aplicável, com a base legal.
+c) Base normativa: Constituição, leis, decretos e normas infralegais aplicáveis, sempre com artigo e diploma. Marque CONFERIR em cada dispositivo.
+d) Requisitos da ação e como cada um aparece nos fatos e nas provas da ficha.
+e) Condições e pressupostos: legitimidade, interesse de agir (inclusive requerimento administrativo prévio, quando exigido) e documentos indispensáveis.
+f) Prescrição, decadência e prazos específicos: prazo, base legal e termo inicial (CONFERIR).
+g) Pontos fracos, provas que faltam e riscos de improcedência.${nota?'\nh) Atenção desta área: '+nota:''}
+Depois, faça até 7 perguntas sobre o que estiver faltando.
+
+ETAPA 2 — ESTRATÉGIA (após minhas respostas)
+Em tópicos:
+- teses principais e subsidiárias, com fundamento legal;
+${urg?'- tutela de urgência ou de evidência (CPC, arts. 300 e 311, ou norma própria), com o pedido já redigido;\n':''}- pedidos em ordem lógica, certos e determinados;
+- valor da causa com memória de cálculo (CPC, art. 292, ou regra própria do procedimento);
+- provas que pretendo produzir.
+
+ETAPA 3 — PEÇA COMPLETA (após eu aprovar a estratégia)
+Siga os requisitos da norma processual aplicável (CPC, art. 319, ou a regra própria: CLT, art. 840, na Justiça do Trabalho; Lei 9.099/95 nos Juizados; Lei 12.016/2009 no mandado de segurança; CPP nas medidas penais; e assim por diante).
+Inclua: endereçamento; qualificação com marcadores; fatos em narrativa clara e cronológica; fundamentos por tópicos com títulos; ${urg?'tutela em destaque; ':''}pedidos numerados; valor da causa; provas${v('petGratuita')?'; pedido de gratuidade':''}; opção pela audiência de conciliação quando cabível.
+Estilo: frases curtas, parágrafos de até 5 linhas, sem latim desnecessário, sem adjetivos ofensivos à parte contrária.
+
+ETAPA 4 — CHECAGEM
+a) Documentos indispensáveis e úteis para esta ação.
+b) Tabela "pedido | fundamento | prova".
+c) Lista do que devo conferir antes de protocolar.
+
+REGRAS
+- Jurisprudência: NÃO cite julgados de memória. Onde um precedente ajudar, escreva [PESQUISAR: tema + termos de busca sugeridos].
+- Se algum dado for incerto, pergunte em vez de supor.
+- Use marcadores no lugar de nomes e documentos.
+- Nunca prometa resultado.`;
+  $('#petOut').textContent=txt; $('#petMeta').textContent=txt.split(/\s+/).length+' palavras';
+}
+renderAreas(); fillCausas('Previdenciário e assistencial||BPC/LOAS — pessoa com deficiência');
+$('#petBusca').addEventListener('input',()=>{fillCausas();genPet()});
+$('#petCausa').addEventListener('change',genPet);
+$('#fPet').addEventListener('input',e=>{if(e.target.id!=='petBusca')genPet()}); $('#fPet').addEventListener('change',genPet);
+genPet();
+
+/* ---------- ESTUDO ---------- */
+let temaSel='bpc', estTab='instr';
+function renderTemas(){$('#estTemas').innerHTML='';T.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=t.nome;b.setAttribute('aria-pressed',String(t.id===temaSel));
+  b.onclick=()=>{temaSel=t.id;$('#estTema').value=t.nome;renderTemas();genEst()};$('#estTemas').appendChild(b)})}
+function currentTema(){const name=v('estTema');const t=T.find(x=>x.id===temaSel&&x.nome===name)||T.find(x=>x.nome.toLowerCase()===name.toLowerCase());return {name:name||'[TEMA]',preset:t||null}}
+function genEst(){
+  const {name,preset}=currentTema(); const obj=v('estObj'),niv=v('estNivel'),sem=+v('estSem'),hrs=v('estHoras'),peca=v('estPeca');
+  $$('#estTemas .chip').forEach(b=>b.setAttribute('aria-pressed',String(!!preset&&b.textContent===preset.nome)));
+  const out={};
+  out.instr=
+`Você é professor e assistente jurídico especializado em ${name}.
+Meu objetivo: ${obj}. Meu nível: ${niv}.
+
+FONTES
+Baseie-se prioritariamente nos arquivos deste Projeto e indique o arquivo e o artigo usados em cada resposta. Se a resposta não estiver nos arquivos, diga isso claramente antes de complementar e marque CONFERIR em toda informação que vier de fora deles.
+
+MODO ESTUDO
+Explique do simples ao técnico, com exemplos concretos do dia a dia, esquemas em tópicos e 3 a 5 perguntas de fixação ao final de cada explicação.${obj==='prova da OAB'||obj==='concurso público'?'\nDestaque os pontos mais cobrados em provas e as "pegadinhas" comuns.':''}
+
+MODO PRÁTICA
+Analise casos (reais anonimizados ou fictícios) aplicando os requisitos legais, apontando provas necessárias, riscos e alternativas.
+${peca?`
+MODO PEÇA
+Quando eu pedir uma peça, siga 4 etapas: diagnóstico com perguntas, estratégia para eu aprovar, peça completa e checagem com documentos e pontos a conferir.
+`:''}
+REGRAS
+- Nunca invente julgados, números de processo ou ementas.
+- Use marcadores no lugar de nomes.
+- Avise quando um ponto depender de norma ou entendimento que pode ter mudado.`;
+  const blocos=Math.max(2,sem);
+  out.plano=
+`Monte um plano de estudo de ${name} com ${sem} semanas e ${hrs} horas por semana, para ${obj}, nível ${niv}.
+Use os arquivos deste Projeto como base.
+
+Para cada semana entregue:
+1. Objetivo da semana em uma frase.
+2. Conteúdo, do fundamento constitucional e legal às questões práticas, com os artigos de cada tópico.
+3. Distribuição das ${hrs} horas (leitura, revisão, exercícios${peca?', prática de peça':''}).
+4. Exercício de fixação.
+5. Checkpoint: 3 perguntas que eu devo saber responder ao fim da semana.
+${peca?`
+Na última semana, inclua a redação de uma petição inicial completa a partir de um caso fictício.
+`:''}
+Depois do plano, pergunte se quero começar pela aula da semana 1.
+
+AULA DA SEMANA (use quando eu pedir "aula da semana N"):
+explicação em blocos curtos, exemplos, esquema final e 5 perguntas de fixação, citando os artigos dos arquivos.`;
+  out.mat=preset?
+`MATERIAIS PARA O PROJETO "${name.toUpperCase()}"
+Baixe dos sites oficiais e envie em Contexto → Adicionar:
+
+${preset.materiais.map((m,i)=>`${i+1}. ${m[0]}\n   Onde obter: ${m[1]}`).join('\n')}
+
+Acrescente também:
+- Suas peças e decisões sobre o tema (anonimizadas)
+- Questões de provas anteriores, se o objetivo for prova
+- Este guia de prompts (instruções e plano)
+
+Anote a data em que baixou cada norma.`:
+`MATERIAIS PARA O PROJETO "${name.toUpperCase()}"
+Este tema não está na lista pronta. Peça ao Claude (fora do Projeto) a lista de fontes e baixe cada uma dos sites oficiais:
+
+---
+Liste as fontes oficiais que preciso reunir para estudar "${name}" com foco em ${obj}:
+1. Dispositivos da Constituição Federal relacionados.
+2. Leis, decretos e normas infralegais aplicáveis, com o número e o ano.
+3. Súmulas e temas repetitivos dos tribunais superiores que tratam do assunto.
+4. Onde baixar cada um (site oficial).
+Marque CONFERIR em tudo, porque normas e entendimentos podem ter mudado.
+Não cite números de processos.
+---
+
+Depois de baixar, envie tudo em Contexto → Adicionar, com a data de download no nome do arquivo.`;
+  out.sim=
+`Monte um simulado de 15 questões de múltipla escolha sobre ${name}, no estilo ${obj==='prova da OAB'?'da 1ª fase da OAB':obj==='concurso público'?'de concursos públicos da área jurídica':'de avaliação prática'}, nível ${niv}.
+- 5 questões fáceis, 6 médias e 4 difíceis, misturadas.
+- 4 alternativas (A a D), apenas uma correta.
+- Não mostre o gabarito antes de eu responder.
+
+Quando eu enviar minhas respostas:
+1. Corrija questão por questão, explicando por que a correta está certa e por que cada errada está errada, citando o artigo dos arquivos do Projeto.
+2. Dê minha nota e os 3 tópicos que preciso revisar.
+3. Gere 5 novas questões só sobre esses tópicos.`;
+  const causa=preset?preset.peca:null;
+  out.peca=peca?
+`DA TEORIA À PEÇA — ${name.toUpperCase()}
+
+1. Crie um caso fictício realista sobre ${name}, com pessoas (marcadores), datas, valores e documentos. Não dê a solução.
+2. Eu vou analisar o caso. Depois corrija minha análise ponto a ponto, como um professor.
+3. Em seguida, redija a petição inicial do caso em 4 etapas: diagnóstico com perguntas, estratégia para eu aprovar, peça completa e checagem.${causa?`\n   Use como roteiro o prompt-mestre de "${causa}" do gerador de petições da Plataforma Less Direito.`:''}
+4. Ao final, explique por que cada tópico da peça foi incluído, para eu aprender a estrutura.
+
+Regras: nada de jurisprudência de memória; use [PESQUISAR: termos] quando um precedente ajudar.`:
+`A prática de petição está desligada. Marque "Incluir prática de petição inicial" para gerar este prompt.`;
+  $('#estOut').textContent=out[estTab];
+}
+$$('#estTabs button').forEach(b=>b.addEventListener('click',()=>{estTab=b.dataset.k;$$('#estTabs button').forEach(x=>x.setAttribute('aria-selected',String(x===b)));genEst()}));
+$('#estTema').addEventListener('input',()=>{const t=T.find(x=>x.nome.toLowerCase()===v('estTema').toLowerCase());temaSel=t?t.id:'';genEst()});
+$('#fEst').addEventListener('change',genEst);
+renderTemas(); genEst();
+
+/* ---------- SKILLS ---------- */
+const skKeys=Object.keys(SK);
+(function(){const s=$('#skSel');skKeys.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=SK[k].titulo;s.appendChild(o)});
+  const o=document.createElement('option');o.value='__nova';o.textContent='Criar uma skill do zero';s.appendChild(o);s.value='peticao-padrao-escritorio'})();
+function desc(md){const m=md.match(/description:\s*([\s\S]*?)\n---/);return m?m[1].replace(/\s+/g,' ').trim():''}
+function renderExtra(){const k=v('skSel');const box=$('#skExtra');box.innerHTML='';
+  const isNew=k==='__nova';$('#skCommon').hidden=isNew;$('#skNew').hidden=!isNew;
+  if(isNew){$('#skDesc').textContent='Monte uma skill nova a partir de passos e regras.';return}
+  $('#skDesc').textContent='Quando o Claude usa: '+desc(SK[k].md);
+  (SK[k].extra||[]).forEach(([id,label,ph])=>{const d=document.createElement('div');d.className='field';
+    const long=id==='modelo'||id==='prazos_extra'||id==='roteiro_extra';
+    d.innerHTML=`<label for="x_${id}"></label>${long?`<textarea id="x_${id}"></textarea>`:`<input type="text" id="x_${id}">`}`;
+    d.querySelector('label').textContent=label; d.querySelector(long?'textarea':'input').placeholder=ph; box.appendChild(d)});
+}
+function slug(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,64)||'minha-skill'}
+let skBuild={folder:'',files:{}};
+function genSk(){
+  const k=v('skSel'); let folder, files={};
+  if(k==='__nova'){
+    folder=slug(v('nkNome')); let d=v('nkDesc').replace(/\s+/g,' ');
+    $('#nkCount').textContent=d.length+'/200 caracteres'+(d.length>200?' · reduza a descrição':'');
+    const passos=v('nkPassos').split('\n').filter(Boolean).map((p,i)=>`${i+1}. ${p.trim()}`).join('\n');
+    const regras=v('nkRegras').split('\n').filter(Boolean).map(r=>`- ${r.trim()}`).join('\n');
+    files['SKILL.md']=`---\nname: ${folder}\ndescription: ${d.slice(0,200)}\n---\n\n# ${v('nkNome')}\n\n## Passos\n${passos||'1. [PASSO]'}\n\n## Entrega\n${v('nkSaida')||'[FORMATO]'}\n\n## Regras\n${regras||'- [REGRA]'}\n- Use marcadores no lugar de nomes reais.\n`;
+  } else {
+    const s=SK[k]; folder=k; let md=s.md;
+    const x=id=>v('x_'+id);
+    const dados=[`- Escritório: ${v('skEsc')||'[ESCRITÓRIO]'}`,`- Responsável: ${v('skResp')||'[RESPONSÁVEL]'}`,`- Cidade/UF: ${v('skCid')||'[CIDADE/UF]'}`,`- Áreas: ${v('skAreas')||'[ÁREAS]'}`,`- Tom: ${v('skTom')}`];
+    if(x('tribunal'))dados.push(`- Tribunal principal: ${x('tribunal')}`);
+    if(x('tribunais'))dados.push(`- Tribunais prioritários: ${x('tribunais')}`);
+    if(x('citacao'))dados.push(`- Formato de citação: ${x('citacao')}`);
+    if(x('estilo'))dados.push(`- Regras de estilo: ${x('estilo')}`);
+    if(x('identidade'))dados.push(`- Identidade visual: ${x('identidade')}`);
+    if(x('contratos'))dados.push(`- Contratos mais revisados: ${x('contratos')}`);
+    if(x('clausulas'))dados.push(`- Cláusulas que o escritório sempre exige: ${x('clausulas')}`);
+    md=md.replace(/\n---\n/, `\n---\n\n## Dados do escritório\n${dados.join('\n')}\n`);
+    if(k==='peticao-padrao-escritorio'){md=md.replace('[NOME DO ESCRITÓRIO]',v('skEsc')||'[NOME DO ESCRITÓRIO]').replace('- Advogado(a): [NOME], OAB/[UF] [NÚMERO] (preencher fora do chat)',`- Advogado(a): ${v('skResp')||'[NOME]'} (OAB preenchida fora do chat)`);
+      if(x('estilo'))md=md.replace('- Estilo: frases curtas, sem latim desnecessário, títulos em caixa alta.',`- Estilo: ${x('estilo')}`)}
+    if(k==='resumo-para-cliente'){if(x('tratamento'))md=md.replace('trate por "você"',`trate por "${x('tratamento')}"`);if(x('encerramento'))md=md.replace('"Qualquer dúvida, estou à disposição."',`"${x('encerramento')}"`)}
+    files['SKILL.md']=md;
+    Object.entries(s.files||{}).forEach(([fn,t])=>{let c=t;
+      if(fn==='modelo.md'&&x('modelo'))c='# Peça-modelo do escritório (anonimizada)\n\n'+x('modelo')+'\n';
+      if(fn==='prazos.md'&&x('prazos_extra'))c+='\n## Prazos adicionados pelo escritório\n'+x('prazos_extra')+'\n';
+      if(fn==='roteiros.md'&&x('roteiro_extra'))c+='\n## Perguntas obrigatórias do escritório\n'+x('roteiro_extra')+'\n';
+      if(fn==='marcadores.md'&&x('dados_extra'))c+='\n## Dados adicionais a esconder\n'+x('dados_extra')+'\n';
+      if(fn==='checklists.md'&&(x('contratos')||x('clausulas')))c+='\n## Preferências do escritório\nContratos frequentes: '+(x('contratos')||'—')+'\nCláusulas exigidas: '+(x('clausulas')||'—')+'\n';
+      files[fn]=c});
+  }
+  skBuild={folder,files};
+  const TESTS={"anonimizador-lgpd":"Anonimize este trecho antes de eu pedir a análise: [cole o texto].","revisao-de-contrato":"Represento o locatário. Revise este contrato e diga o que é arriscado: [anexe o contrato].","peticao-padrao-escritorio":"Preciso de uma contestação para o caso abaixo. Comece pelo esqueleto: [fatos].","controle-de-prazos":"Recebi esta intimação hoje. Qual é o prazo? [cole a intimação].","resumo-para-cliente":"Explique para o cliente esta decisão: [cole a decisão].","organizador-de-jurisprudencia":"Organize estas ementas para a tese de [tese]: [cole as ementas].","ficha-de-atendimento":"Amanhã atendo um novo cliente de direito do consumidor. Monte o roteiro de perguntas.","palestra-juridica":"Fui convidado para falar 20 minutos sobre golpes no PIX para idosos. Monte a palestra."};
+  $('#skTest').textContent='Em um chat novo, peça: "'+(TESTS[k]||(v('nkDesc')?'faça a tarefa descrita na skill com um caso de exemplo':''))+'"';
+  $('#skFiles').innerHTML=''; Object.keys(files).forEach(fn=>{const li=document.createElement('li');li.textContent=folder+'/'+fn;$('#skFiles').appendChild(li)});
+  $('#skOut').textContent=files['SKILL.md']; $('#skMeta').textContent=folder+'.zip';
+}
+$('#skSel').addEventListener('change',()=>{renderExtra();genSk()});
+$('#fSk').addEventListener('input',genSk);
+renderExtra(); genSk();
+
+function baixar(blob,nome){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nome;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+window.LD_baixar=baixar;
+$('#skZip').addEventListener('click',async()=>{
+  try{const z=new JSZip();Object.entries(skBuild.files).forEach(([fn,c])=>z.file(skBuild.folder+'/'+fn,c));
+    baixar(await z.generateAsync({type:'blob'}),skBuild.folder+'.zip');toast('Download iniciado')}catch(e){toast('Não foi possível gerar o arquivo')}
+});
+$('#skNote').textContent='Skills ficam disponíveis nos planos pagos do Claude.';
+window.LD_toast=toast; window.LD_v=v;
+}
+</script>
+
+<script>
+(function(){
+const SUPA_URL='https://uqljwhehtpsiqzrlcavs.supabase.co', SUPA_KEY='sb_publishable_3QvEEikisHwRSNivi-8VdQ_rVhiqYOc';
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let iniciado=false;
+function msg(el,t,ok){el.textContent=t;el.className='msg '+(ok?'ok':'err')}
+
+/* abas do login */
+$$('.seg button').forEach(b=>b.addEventListener('click',()=>{
+  $$('.seg button').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
+  const criar=b.dataset.modo==='criar';$('#fEntrar').hidden=criar;$('#fCriar').hidden=!criar;
+  $('#btnCriar').textContent=b.dataset.esqueci?'Definir nova senha':'Criar meu acesso';
+  $('#txtCriar').textContent=b.dataset.esqueci?'Confirme o e-mail e o CPF da compra e escolha uma nova senha.':'Use o mesmo e-mail e o CPF informados na compra. Você escolhe a sua senha agora.';
+}));
+$('#btnEntrarTopo').addEventListener('click',()=>{$('#gate').scrollIntoView({behavior:'smooth'});$('#inEmail').focus()});
+
+$('#fEntrar').addEventListener('submit',async e=>{e.preventDefault();const m=$('#msgEntrar');msg(m,'Entrando...',true);
+  const {error}=await sb.auth.signInWithPassword({email:$('#inEmail').value.trim(),password:$('#inSenha').value});
+  if(error)msg(m,error.message.includes('Invalid')?'E-mail ou senha incorretos. Se é sua primeira vez, use "Primeiro acesso".':error.message);else msg(m,'',true)});
+
+$('#fCriar').addEventListener('submit',async e=>{e.preventDefault();const m=$('#msgCriar');
+  const email=$('#crEmail').value.trim(),cpf=$('#crCpf').value.trim(),s1=$('#crSenha').value,s2=$('#crSenha2').value;
+  if(s1!==s2)return msg(m,'As senhas não são iguais.');
+  if(s1.length<8)return msg(m,'A senha precisa ter pelo menos 8 caracteres.');
+  msg(m,'Conferindo sua compra...',true);
+  try{const r=await fetch(SUPA_URL+'/functions/v1/acesso',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPA_KEY},body:JSON.stringify({email,cpf,senha:s1})});
+    const d=await r.json().catch(()=>({}));if(!r.ok)return msg(m,d.erro||'Não foi possível criar o acesso.');
+    msg(m,'Acesso criado! Entrando...',true);
+    const {error}=await sb.auth.signInWithPassword({email,password:s1});if(error)msg(m,error.message)}
+  catch(err){msg(m,'Sem conexão. Tente de novo.')}});
+
+$('#btnSair').addEventListener('click',()=>sb.auth.signOut());
+
+async function aplicar(session){
+  const logado=!!session;
+  $('#btnSair').hidden=!logado;$('#btnEntrarTopo').hidden=logado;$('#userEmail').textContent=logado?session.user.email:'';
+  if(!logado){$('#gate').hidden=false;$('#app').hidden=true;$('#nav').hidden=true;$('#loading').hidden=true;return}
+  $('#gate').hidden=true;$('#loading').hidden=false;
+  const {data,error}=await sb.from('conteudo').select('dados').eq('id',1).maybeSingle();
+  $('#loading').hidden=true;
+  if(error||!data){$('#gate').hidden=false;msg($('#msgEntrar'),'Seu acesso não está ativo. Se a compra foi reembolsada ou ainda está em análise, fale com o suporte.');return}
+  const d=data.dados;window.LD_ACOES=d.acoes;window.LD_AREA_NOTAS=d.notas;window.LD_TEMAS=d.temas;window.LD_SKILLS=d.skills;
+  $('#app').hidden=false;$('#nav').hidden=false;
+  if(!iniciado){iniciado=true;iniciarFerramentas();iniciarExtras()}
+}
+sb.auth.onAuthStateChange((_ev,session)=>{setTimeout(()=>aplicar(session),0)});
+
+function iniciarExtras(){
+  const toast=window.LD_toast,v=window.LD_v;
+  /* materiais */
+  $('#btnPdf').addEventListener('click',async()=>{const m=$('#msgPdf');msg(m,'Gerando link...',true);
+    const {data,error}=await sb.storage.from('materiais').createSignedUrl('Claude_no_Direito.pdf',600,{download:'Claude_no_Direito_Less_Direito.pdf'});
+    if(error||!data)return msg(m,'O guia ainda não está disponível. Tente mais tarde ou fale com o suporte.');
+    msg(m,'',true);location.href=data.signedUrl});
+  $('#btnKit').addEventListener('click',async()=>{const z=new JSZip();
+    Object.entries(window.LD_SKILLS).forEach(([k,s])=>{const zz=new JSZip();zz.file(k+'/SKILL.md',s.md);Object.entries(s.files||{}).forEach(([f,c])=>zz.file(k+'/'+f,c));z.file(k+'.zip',zz.generateAsync({type:'uint8array'}))});
+    window.LD_baixar(await z.generateAsync({type:'blob'}),'Kit_8_skills_Less_Direito.zip');toast('Download iniciado')});
+
+  /* gerador universal */
+  const EX=[['Recurso de apelação','Quero um prompt para redigir um recurso de apelação contra uma sentença de improcedência, atacando a análise das provas.','peça jurídica completa'],
+    ['Parecer','Quero um prompt para elaborar um parecer jurídico respondendo a uma consulta de cliente empresarial.','o mais adequado'],
+    ['Contrato','Quero um prompt para redigir um contrato de prestação de serviços advocatícios com cláusula de êxito.','o mais adequado'],
+    ['Post Instagram','Quero um prompt para criar um carrossel educativo de 7 slides sobre um direito do consumidor, sem captar clientes.','roteiro ou apresentação'],
+    ['Aula','Quero um prompt para preparar uma aula de 50 minutos sobre prisão preventiva para alunos do 6º semestre.','roteiro ou apresentação'],
+    ['E-mail ao cliente','Quero um prompt para escrever um e-mail explicando ao cliente que perdemos em primeira instância e quais as opções.','e-mail ou mensagem'],
+    ['Simulado OAB','Quero um prompt que gere 20 questões no estilo da 1ª fase da OAB sobre direito constitucional, com gabarito comentado.','questões com gabarito'],
+    ['Organizar escritório','Quero um prompt para montar a rotina semanal de controle de prazos e atendimento de um escritório com 2 advogados.','checklist']];
+  EX.forEach(([t,o,f])=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=t;
+    b.onclick=()=>{$('#uniObj').value=o;$('#uniFmt').value=f;$('#uniDet').value=''};$('#uniQuick').appendChild(b)});
+  function modelo(){const area=v('uniArea'),jur=!/marketing|gest/i.test(area);
+    return `PAPEL
+Atue como especialista sênior em ${area==='Geral'?'direito e prática jurídica':area.toLowerCase()}, com experiência prática no Brasil.
+
+CONTEXTO
+${v('uniDet')||'[Descreva a situação, os dados disponíveis e os documentos anexados.]'}
+O resultado é para: ${v('uniPub')||'[PÚBLICO]'}.
+
+TAREFA
+${v('uniObj')}
+
+ETAPAS
+1. Antes de começar, faça até 5 perguntas sobre o que estiver faltando.
+2. Apresente a estrutura ou o plano da entrega e espere minha aprovação.
+3. Produza a entrega completa.
+4. Revise o resultado e liste o que eu devo conferir.
+
+FORMATO DA SAÍDA
+Formato: ${v('uniFmt')}. Tom: ${v('uniTom')}. Frases curtas, títulos claros, sem enrolação.
+
+REGRAS
+${jur?'- Não cite jurisprudência de memória; escreva [PESQUISAR: termos de busca] quando um precedente ajudar.\n- Marque CONFERIR em todo artigo de lei citado.\n':''}- Use marcadores no lugar de nomes e dados pessoais.
+- Se algum dado for incerto, pergunte em vez de supor.
+- Nunca prometa resultado.`}
+  function pinta(t,meta){$('#uniOut').textContent=t;$('#uniMeta').textContent=meta||(t.split(/\s+/).length+' palavras')}
+  $('#uniModelo').addEventListener('click',()=>{pinta(modelo(),'modelo sem IA');msg($('#uniMsg'),'',true)});
+  $('#fUni').addEventListener('submit',async e=>{e.preventDefault();const m=$('#uniMsg'),b=$('#uniGo');
+    if(v('uniObj').length<10)return msg(m,'Descreva com mais detalhes o que você quer.');
+    b.disabled=true;msg(m,'A IA está escrevendo o seu prompt...',true);
+    try{const {data,error}=await sb.functions.invoke('gerar-prompt',{body:{objetivo:v('uniObj'),area:v('uniArea'),publico:v('uniPub'),formato:v('uniFmt'),tom:v('uniTom'),detalhes:v('uniDet')}});
+      if(error){let d={};try{d=await error.context.json()}catch(_){}
+        if(d.codigo==='sem_chave'){pinta(modelo(),'modelo sem IA');msg(m,'A IA ainda não está ativa. Mostramos o modelo pronto.',true)}
+        else msg(m,d.erro||'Não foi possível gerar agora. Use "Montar sem IA".');}
+      else{pinta(data.prompt,`gerado com IA · ${data.restantes} restantes hoje`);msg(m,'',true)}}
+    catch(err){msg(m,'Sem conexão. Tente de novo.')}
+    b.disabled=false});
+}
+})();
+</script>
+</body>
+</html>

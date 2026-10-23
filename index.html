@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Claude no Direito · Less Direito</title>
+<meta name="description" content="Guia em PDF + plataforma para usar o Claude no Direito: petições iniciais de 184 ações, gerador universal de prompts com IA, projetos de estudo e kit de 8 skills. Para advogados, estudantes, servidores e magistrados.">
+<meta property="og:title" content="Claude no Direito · Less Direito">
+<meta property="og:description" content="Guia + plataforma para usar o Claude com segurança e método no dia a dia jurídico.">
+<meta property="og:image" content="/img/guia/p01.jpg">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="icon" href="/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap">
+<style>
+:root{
+  --bg:#0A0A0A; --surface:#141414; --surface-2:#1C1B1A; --line:#2D2A28; --text:#F3F1ED; --muted:#A39E98;
+  --red:#B3141B; --red-hi:#E2474E; --paper:#F3F1ED; --ink:#0B0B0B;
+  --font:"Poppins",system-ui,sans-serif; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:15px/1.6 var(--font);margin:0;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--red-hi);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px))}
+section{padding-block:72px}
+.kicker{font-size:11px;letter-spacing:.32em;text-transform:uppercase;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:10px;margin:0}
+.kicker::before{content:"";width:34px;height:2px;background:var(--red);flex:none}
+h1,h2,h3{font-family:var(--font);text-transform:lowercase;letter-spacing:-.05em;margin:0}
+h2.big{font-weight:900;font-size:clamp(38px,6vw,72px);line-height:.9;margin:14px 0 18px;text-wrap:balance}
+h2.big em,h1 em{font-style:normal;color:var(--red-hi)}
+.sub{color:#D3CEC8;font-size:clamp(15px,1.5vw,18px);max-width:40em;margin:0}
+.btn{font:700 14px var(--font);border-radius:999px;padding:13px 22px;cursor:pointer;border:1px solid var(--line);background:var(--surface-2);color:var(--text);text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:transform .15s,border-color .15s,background .15s}
+.btn:hover{border-color:var(--red-hi);transform:translateY(-1px)}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+.btn.primary:hover{background:#c8161e}
+.btn.ghost{background:none}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+
+/* header */
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand img{height:34px;width:auto}
+nav.links{display:flex;gap:22px;font-size:13px;font-weight:600;color:var(--muted)}
+nav.links a{text-decoration:none}
+nav.links a:hover{color:var(--text)}
+header .btns .btn{padding:8px 16px;font-size:13px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding-block:56px 64px}
+.hero h1{font-weight:900;font-size:clamp(56px,10vw,128px);line-height:.85;margin:18px 0 22px}
+.who{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px;padding:0;list-style:none}
+.who li{border:1px solid var(--line);padding:6px 12px;font-size:12.5px;font-weight:600;color:#D8D3CD}
+.hero .sub{margin-bottom:28px}
+.proof{display:flex;flex-wrap:wrap;gap:22px;margin-top:30px;font-size:12.5px;color:var(--muted)}
+.proof b{display:block;font-size:26px;font-weight:900;color:var(--text);letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
+.book{perspective:1400px;display:flex;justify-content:center}
+.book .cover{position:relative;width:min(100%,400px);transform:rotateY(-16deg) rotateX(4deg);transform-style:preserve-3d;transition:transform .3s ease-out;box-shadow:30px 40px 80px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04)}
+.book .cover::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,rgba(255,255,255,.14),transparent 30%,transparent 70%,rgba(0,0,0,.25))}
+.book .cover img{width:100%}
+.book .tag{position:absolute;left:-28px;bottom:12%;transform:translateZ(60px);background:var(--paper);color:var(--ink);padding:10px 14px;font-size:12px;font-weight:800;letter-spacing:.06em;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+.book .tag small{display:block;font-weight:500;letter-spacing:0;color:#5b5752;font-size:11px}
+
+/* band */
+.band{background:var(--red);color:#fff;padding-block:18px;overflow:hidden;white-space:nowrap}
+.band .track{display:inline-flex;gap:40px;font-weight:900;font-size:20px;letter-spacing:-.02em;text-transform:lowercase;animation:slide 40s linear infinite}
+.band span::after{content:"✦";margin-left:40px;opacity:.7}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* pain/promise */
+.pp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:34px}
+.pp div{border:1px solid var(--line);background:var(--surface);padding:22px}
+.pp b{display:block;font-size:22px;font-weight:900;letter-spacing:-.03em;text-transform:lowercase;margin-bottom:8px}
+.pp b span{color:var(--red-hi)}
+.pp p{margin:0;color:#CFCAC4;font-size:14px}
+
+/* guide */
+.guide-head{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end}
+.chapters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:34px}
+.chapters figure{margin:0;position:relative;overflow:hidden;border:1px solid var(--line);background:#111}
+.chapters img{width:100%;aspect-ratio:414/585;object-fit:cover;transition:transform .4s}
+.chapters figure:hover img{transform:scale(1.04)}
+.chapters figcaption{padding:10px 12px;font-size:12.5px;color:#D3CEC8;border-top:1px solid var(--line)}
+.chapters figcaption b{color:var(--text)}
+.extras{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:14px}
+.extras div{border:1px solid var(--line);padding:16px;font-size:13.5px;color:#CFCAC4}
+.extras b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+.extras b span{color:var(--red-hi)}
+
+/* platform */
+.tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:34px}
+.tool{position:relative;min-height:340px;border:1px solid var(--line);background:var(--surface) center 30%/cover no-repeat;overflow:hidden;display:flex;align-items:flex-end}
+.tool::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,0) 15%,rgba(10,10,10,.94) 70%)}
+.tool div{position:relative;padding:20px}
+.tool .n{font-size:12px;font-weight:900;color:var(--red-hi);letter-spacing:.2em;text-transform:uppercase}
+.tool h3{font-size:28px;font-weight:900;line-height:.95;margin:6px 0 8px}
+.tool p{margin:0;color:#D3CEC8;font-size:13.5px}
+.example{margin-top:22px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.example > div{border:1px solid var(--line);padding:18px;min-width:0}
+.example .k{font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:8px}
+.example .good{border-color:var(--red)}
+.example pre{margin:0;font:12.5px/1.55 ui-monospace,Menlo,monospace;white-space:pre-wrap;color:#D8D3CD}
+
+/* skills */
+.skills{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:34px}
+.skills div{background:var(--bg);padding:20px}
+.skills i{font-style:normal;font-weight:900;color:var(--red-hi);font-size:13px;letter-spacing:.1em}
+.skills b{display:block;font-size:16px;margin:6px 0 4px}
+.skills p{margin:0;color:var(--muted);font-size:13px}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:34px;counter-reset:s}
+.steps div{counter-increment:s;border-top:2px solid var(--red);padding-top:18px}
+.steps div::before{content:"0" counter(s);font-size:44px;font-weight:900;letter-spacing:-.05em;color:var(--line);display:block;line-height:1;margin-bottom:10px}
+.steps b{display:block;font-size:18px;margin-bottom:6px}
+.steps p{margin:0;color:#CFCAC4;font-size:14px}
+
+/* ethics */
+.ethics{display:grid;grid-template-columns:.8fr 1.2fr;gap:40px;align-items:center}
+.ethics img{border:1px solid var(--line);max-width:340px;width:100%;margin-inline:auto}
+.ethics ul{margin:18px 0 0;padding:0;list-style:none;display:grid;gap:10px}
+.ethics li{padding-left:22px;position:relative;color:#D8D3CD}
+.ethics li::before{content:"";position:absolute;left:0;top:.7em;width:10px;height:2px;background:var(--red)}
+
+/* offer */
+.offer{display:grid;grid-template-columns:1.1fr .9fr;gap:0;border:1px solid var(--red);background:var(--surface)}
+.offer .l{padding:36px}
+.offer .r{padding:36px;background:linear-gradient(180deg,rgba(10,10,10,.55),rgba(10,10,10,.92)),url(/img/universal.jpg) center 30%/cover;display:flex;flex-direction:column;justify-content:center;gap:16px;border-left:1px solid var(--line)}
+.offer ul{margin:18px 0 0;padding:0;list-style:none;display:grid;gap:12px}
+.offer li{display:grid;grid-template-columns:22px 1fr;gap:10px;font-size:14.5px}
+.offer li::before{content:"✓";color:var(--red-hi);font-weight:900}
+.offer li small{display:block;color:var(--muted);font-size:12.5px}
+.price{font-size:clamp(44px,6vw,64px);font-weight:900;letter-spacing:-.05em;line-height:1}
+.price small{display:block;font-size:13px;font-weight:600;letter-spacing:0;color:var(--muted);margin-top:8px}
+.guarantee{display:flex;gap:12px;align-items:flex-start;font-size:13px;color:#D3CEC8;border-top:1px solid var(--line);padding-top:16px}
+.guarantee b{display:block;color:var(--text)}
+.seal{flex:none;width:46px;height:46px;border-radius:50%;border:2px solid var(--red-hi);display:grid;place-items:center;font-weight:900;font-size:15px;color:var(--red-hi)}
+.offer .btn.primary{justify-content:center;font-size:16px;padding:16px 24px}
+.offer .btn[aria-disabled="true"]{opacity:.6;pointer-events:none}
+.pay{font-size:12px;color:var(--muted);margin:0}
+
+/* faq */
+.faq{max-width:820px}
+details{border-top:1px solid var(--line);padding:16px 0}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font-weight:700;font-size:15.5px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--red-hi);font-weight:900;font-size:20px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin:10px 0 0;color:#CFCAC4;font-size:14px}
+
+.final{text-align:center;padding-block:90px}
+.final h2.big{margin-inline:auto;max-width:12em}
+.final .btns{justify-content:center;margin-top:26px}
+footer{border-top:1px solid var(--line);padding-block:26px 40px;color:var(--muted);font-size:12.5px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+footer a{text-decoration:none}
+footer a:hover{color:var(--text)}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s}
+.reveal.in{opacity:1;transform:none}
+
+@media (max-width:960px){
+  nav.links{display:none}
+  .hero{grid-template-columns:1fr;padding-top:36px}
+  .book{order:-1}.book .cover{width:min(78%,320px)}.book .tag{left:-12px}
+  .chapters,.extras,.tools,.skills{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pp,.steps{grid-template-columns:1fr}
+  .ethics,.offer,.example,.guide-head{grid-template-columns:1fr}
+  .offer .r{border-left:0;border-top:1px solid var(--line)}
+  section{padding-block:56px}
+}
+@media (max-width:560px){
+  .chapters,.extras{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tools,.skills{grid-template-columns:1fr}
+  .tool{min-height:260px}
+  .offer .l,.offer .r{padding:24px}
+  header .btns{gap:6px}header .btns .btn{padding:7px 12px;font-size:12px}
+  .book .tag{display:none}
+  .ethics img{display:none}
+  .chapters figcaption{font-size:11.5px;padding:8px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#inicio"><img src="/img/logo.png" alt="Less Direito" width="36" height="34"></a>
+    <nav class="links" aria-label="Seções">
+      <a href="#guia">O guia</a><a href="#plataforma">A plataforma</a><a href="#skills">Skills</a><a href="#duvidas">Dúvidas</a>
+    </nav>
+    <div class="btns"><a class="btn ghost" href="/app/">Entrar</a><a class="btn primary" href="#oferta">Quero o meu</a></div>
+  </div>
+</header>
+
+<main id="inicio">
+  <div class="wrap hero">
+    <div>
+      <p class="kicker">guia + plataforma · less direito</p>
+      <h1>claude<br>no seu <em>direito</em></h1>
+      <ul class="who" aria-label="Para quem é"><li>Advogados</li><li>Estudantes</li><li>Servidores</li><li>Magistrados e assessores</li></ul>
+      <p class="sub">O método completo para usar o Claude no dia a dia jurídico com segurança: pesquisa, redação, skills, conectores e rotinas automáticas. Vem com uma plataforma que gera o prompt certo para cada petição, cada estudo e cada tarefa.</p>
+      <div class="btns"><a class="btn primary" href="#oferta">Quero ter acesso</a><a class="btn" href="#guia">Ver o que vem</a></div>
+      <div class="proof">
+        <div><b>75</b>páginas de guia</div>
+        <div><b>184</b>ações com prompt-mestre</div>
+        <div><b>8</b>skills prontas</div>
+        <div><b>∞</b>prompts com IA</div>
+      </div>
+    </div>
+    <div class="book">
+      <div class="cover" id="cover">
+        <img src="/img/guia/p01.jpg" alt="Capa do guia Claude no Direito" width="900" height="1272" fetchpriority="high">
+        <div class="tag">CLAUDE NO DIREITO<small>guia prático · edição 2026</small></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="band" aria-hidden="true"><div class="track">
+    <span>menos trabalho repetitivo</span><span>mais direito</span><span>petições em minutos</span><span>pesquisa com fonte</span><span>sigilo em primeiro lugar</span><span>skills do seu escritório</span>
+    <span>menos trabalho repetitivo</span><span>mais direito</span><span>petições em minutos</span><span>pesquisa com fonte</span><span>sigilo em primeiro lugar</span><span>skills do seu escritório</span>
+  </div></div>
+
+  <section class="wrap">
+    <p class="kicker reveal">por que isso existe</p>
+    <h2 class="big reveal">a ia não vai substituir quem vive o direito. <em>quem usa a ia vai ocupar o lugar de quem não usa.</em></h2>
+    <div class="pp">
+      <div class="reveal"><b>sem <span>tela em branco</span></b><p>Petição, parecer, resumo para o cliente: você parte de um prompt pensado por quem é da área, não de um chat vazio.</p></div>
+      <div class="reveal"><b>sem <span>alucinação</span></b><p>O guia ensina a pedir fonte, conferir jurisprudência e montar a checagem final antes de qualquer peça sair.</p></div>
+      <div class="reveal"><b>sem <span>vazar dados</span></b><p>Capítulo inteiro sobre ética, sigilo e anonimização, com a skill Anonimizador LGPD pronta para usar.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="guia">
+    <div class="guide-head">
+      <div><p class="kicker reveal">o guia em pdf</p>
+      <h2 class="big reveal">8 capítulos. <em>do primeiro chat à rotina automática.</em></h2></div>
+      <p class="sub reveal" style="max-width:24em">Passo a passo com prints reais, exemplos de prompt e o que fazer quando a resposta vem errada.</p>
+    </div>
+    <div class="chapters">
+      <figure class="reveal"><img src="/img/guia/p06.jpg" alt="" loading="lazy" width="520" height="735"><figcaption><b>00 · Ética e sigilo</b><br>OAB, LGPD e anonimização</figcaption></figure>
+      <figure class="reveal"><img src="/img/guia/p11.jpg" alt="" loading="lazy" width="520" height="735"><figcaption><b>01 · Primeiros passos</b><br>Conta, privacidade e projetos</figcaption></figure>
+      <figure class="reveal"><img src="/img/guia/p16.jpg" alt="" loading="lazy" width="520" height="735"><figcaption><b>02 · Pesquisa e análise</b><br>Processos longos em minutos</figcaption></figure>
+      <figure class="reveal"><img src="/img/guia/p20.jpg" alt="" loading="lazy" width="520" height="735"><figcaption><b>03 · Redação jurídica</b><br>Peças no seu padrão</figcaption></figure>
+      <figure class="reveal"><img src="/img/guia/p24.jpg" alt="" loading="lazy" width="520" height="735"><figcaption><b>04 · Skills</b><br>Ensine o Claude uma vez</figcaption></figure>
+      <figure class="reveal"><img src="/img/guia/p29.jpg" alt="" loading="lazy" width="520" height="735"><figcaption><b>05 · Conectores</b><br>Drive, e-mail e agenda</figcaption></figure>
+      <figure class="reveal"><img src="/img/guia/p34.jpg" alt="" loading="lazy" width="520" height="735"><figcaption><b>06 · Palestras e conteúdo</b><br>Slides e redes sociais</figcaption></figure>
+      <figure class="reveal"><img src="/img/guia/p38.jpg" alt="" loading="lazy" width="520" height="735"><figcaption><b>07 · Rotinas automáticas</b><br>Tarefas agendadas</figcaption></figure>
+    </div>
+    <div class="extras">
+      <div class="reveal"><b><span>+</span> kit de 8 skills</b>Prontas para instalar no Claude.</div>
+      <div class="reveal"><b><span>+</span> biblioteca de prompts</b>Por área: cível, família, consumidor, trabalho, criminal e mais.</div>
+      <div class="reveal"><b><span>+</span> petições iniciais</b>Prompts-mestre com diagnóstico, estratégia e checagem.</div>
+      <div class="reveal"><b><span>+</span> projetos temáticos</b>Plano de estudo em 4 semanas, como BPC/LOAS.</div>
+    </div>
+  </section>
+
+  <section class="wrap" id="plataforma">
+    <p class="kicker reveal">a plataforma</p>
+    <h2 class="big reveal">o prompt certo, <em>pronto para colar.</em></h2>
+    <p class="sub reveal">Acesso com login e senha. Você escolhe a ferramenta, preenche o que sabe do caso e copia o resultado para o Claude.</p>
+    <div class="tools">
+      <article class="tool reveal" style="background-image:url(/img/universal.jpg)"><div><span class="n">00 · com ia</span><h3>gerador universal</h3><p>Descreva qualquer tarefa em linguagem simples. A IA devolve um prompt completo e estruturado.</p></div></article>
+      <article class="tool reveal" style="background-image:url(/img/peticoes.jpg)"><div><span class="n">01 · 184 ações</span><h3>petições iniciais</h3><p>De alimentos a BPC/LOAS, de consumidor a trabalhista. Ou digite a ação que precisar.</p></div></article>
+      <article class="tool reveal" style="background-image:url(/img/estudo.jpg)"><div><span class="n">02 · estudo</span><h3>projetos temáticos</h3><p>Monte um Projeto no Claude para dominar um tema: instruções, roteiro e checklist.</p></div></article>
+      <article class="tool reveal" style="background-image:url(/img/skills.jpg)"><div><span class="n">03 · editor</span><h3>skills do escritório</h3><p>Preencha os dados do seu escritório e baixe as skills prontas em .zip.</p></div></article>
+    </div>
+    <div class="example">
+      <div class="reveal"><div class="k">o que a maioria pede</div><pre>faz uma petição de alimentos</pre></div>
+      <div class="good reveal"><div class="k">o que a plataforma entrega</div><pre>Você é advogado(a) de família. Antes de redigir:
+1. Diagnóstico: confira legitimidade, binômio
+   necessidade-possibilidade e provas.
+2. Estratégia: tutela de urgência? alimentos
+   provisórios? Liste o que falta.
+3. Peça: estrutura completa, com fundamentos...
+4. Checagem: cite só o que puder conferir.</pre></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="skills">
+    <p class="kicker reveal">kit de skills</p>
+    <h2 class="big reveal">ensine o claude <em>uma vez.</em> use para sempre.</h2>
+    <p class="sub reveal">Skills são instruções que o Claude carrega sozinho quando a tarefa pede. Você instala uma vez e ele passa a trabalhar no padrão do seu escritório.</p>
+    <div class="skills">
+      <div class="reveal"><i>01</i><b>Anonimizador LGPD</b><p>Tira nomes, CPFs e dados sensíveis antes de qualquer análise.</p></div>
+      <div class="reveal"><i>02</i><b>Revisão de contrato</b><p>Cláusulas de risco, pontos de negociação e sugestões.</p></div>
+      <div class="reveal"><i>03</i><b>Petição no padrão</b><p>Estrutura, fonte e estilo do seu escritório em toda peça.</p></div>
+      <div class="reveal"><i>04</i><b>Controle de prazos</b><p>Lê intimações e organiza prazos em tabela.</p></div>
+      <div class="reveal"><i>05</i><b>Resumo para o cliente</b><p>Traduz o andamento do processo para linguagem simples.</p></div>
+      <div class="reveal"><i>06</i><b>Organizador de jurisprudência</b><p>Fichas padronizadas de cada julgado pesquisado.</p></div>
+      <div class="reveal"><i>07</i><b>Ficha de atendimento</b><p>Transforma o relato do cliente em ficha e checklist.</p></div>
+      <div class="reveal"><i>08</i><b>Palestra e aula jurídica</b><p>Roteiro, slides e material de apoio em minutos.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="ethics">
+      <img class="reveal" src="/img/guia/p06.jpg" alt="Abertura do capítulo Ética e sigilo" loading="lazy" width="520" height="735">
+      <div>
+        <p class="kicker reveal">capítulo 00</p>
+        <h2 class="big reveal">ética e sigilo <em>vêm primeiro.</em></h2>
+        <p class="sub reveal">Antes de qualquer prompt, o guia mostra como usar IA sem expor o cliente nem a sua inscrição.</p>
+        <ul class="reveal">
+          <li>O que as orientações da OAB recomendam sobre o uso de IA</li>
+          <li>Configurações de privacidade do Claude, passo a passo</li>
+          <li>Como anonimizar um caso em 2 minutos</li>
+          <li>O que nunca colar no chat</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <p class="kicker reveal">como funciona</p>
+    <h2 class="big reveal">da compra ao primeiro prompt <em>em minutos.</em></h2>
+    <div class="steps">
+      <div class="reveal"><b>Garanta o acesso</b><p>Pagamento por Pix ou cartão na Kiwify, plataforma segura de pagamentos.</p></div>
+      <div class="reveal"><b>Crie sua senha</b><p>Entre em <a href="/app/">Área do aluno</a>, clique em "Primeiro acesso" e use o mesmo e-mail e CPF da compra.</p></div>
+      <div class="reveal"><b>Use no seu dia a dia</b><p>Baixe o guia em PDF, gere seus prompts e instale as skills no Claude.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="oferta">
+    <div class="offer reveal">
+      <div class="l">
+        <p class="kicker">tudo o que você recebe</p>
+        <h2 class="big" style="font-size:clamp(34px,4.6vw,54px)">guia + <em>plataforma</em></h2>
+        <ul>
+          <li><span>Guia "Claude no Direito" em PDF<small>75 páginas, 8 capítulos e 4 anexos</small></span></li>
+          <li><span>Gerador universal de prompts com IA<small>para qualquer tarefa jurídica</small></span></li>
+          <li><span>Prompts-mestre de petição inicial<small>184 ações em 9 áreas do Direito</small></span></li>
+          <li><span>Projetos de estudo por tema<small>BPC/LOAS, direitos fundamentais, crimes e o tema que quiser</small></span></li>
+          <li><span>Kit de 8 skills personalizáveis<small>editor com download pronto em .zip</small></span></li>
+        </ul>
+      </div>
+      <div class="r">
+        <div class="price" id="preco">acesso completo<small id="precoNota">Pagamento único. Pix ou cartão.</small></div>
+        <a class="btn primary" id="ctaCompra" href="#oferta" target="_blank" rel="noopener">Quero ter acesso</a>
+        <p class="pay">Pagamento processado pela Kiwify. Depois da compra, volte aqui e crie sua senha em "Primeiro acesso".</p>
+        <div class="guarantee"><div class="seal">7</div><div><b>7 dias de garantia</b>Se não for para você, peça o reembolso dentro de 7 dias pela própria Kiwify.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap faq" id="duvidas">
+    <p class="kicker reveal">dúvidas</p>
+    <h2 class="big reveal">perguntas <em>frequentes</em></h2>
+    <details><summary>Preciso saber usar IA para aproveitar?</summary><p>Não. O capítulo 01 começa da criação da conta. Os prompts da plataforma já vêm prontos: você preenche o que sabe do caso e cola no Claude.</p></details>
+    <details><summary>Funciona no plano gratuito do Claude?</summary><p>Boa parte sim: os prompts, as petições e o gerador universal funcionam em qualquer plano. Recursos como Projetos, conectores e tarefas agendadas dependem do plano do Claude, e o guia indica isso em cada capítulo.</p></details>
+    <details><summary>Os prompts servem em outras IAs?</summary><p>Os prompts de petição e do gerador universal funcionam em qualquer IA de texto. Já as skills, os Projetos e os conectores são recursos do Claude.</p></details>
+    <details><summary>É seguro colocar dados do cliente?</summary><p>O guia ensina a não colocar. O capítulo 00 e a skill Anonimizador LGPD mostram como trabalhar com o caso sem expor nomes, CPFs ou dados sensíveis.</p></details>
+    <details><summary>Serve para estudante e concurseiro?</summary><p>Sim. A plataforma monta Projetos de estudo por tema, com roteiro de 4 semanas, e o guia mostra como usar o Claude para revisar e treinar.</p></details>
+    <details><summary>Como recebo o acesso?</summary><p>Assim que o pagamento é aprovado, seu e-mail fica liberado. Entre em <a href="/app/">Área do aluno</a>, clique em "Primeiro acesso", informe o e-mail e o CPF da compra e crie sua senha. O PDF fica disponível dentro da plataforma.</p></details>
+    <details><summary>E se eu esquecer a senha?</summary><p>Na Área do aluno, use "Esqueci a senha" com o mesmo e-mail e CPF da compra e crie uma nova na hora.</p></details>
+  </section>
+
+  <section class="wrap final">
+    <p class="kicker reveal" style="justify-content:center">less direito</p>
+    <h2 class="big reveal">menos trabalho repetitivo. <em>mais direito.</em></h2>
+    <div class="btns reveal"><a class="btn primary" href="#oferta">Quero ter acesso</a><a class="btn" href="/app/">Já comprei · Entrar</a></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="ano">2026</span> Less Direito. Material educativo; não substitui a análise profissional do caso.</span>
+    <span><a href="https://instagram.com/lessdireito" target="_blank" rel="noopener">@lessdireito</a> · <a href="/app/">Área do aluno</a></span>
+  </div>
+</footer>
+
+<script>
+/* ===== Configuração de venda: preencha quando o produto estiver criado na Kiwify ===== */
+const CHECKOUT_URL = "";      // ex.: "https://pay.kiwify.com.br/XXXXXXX"
+const PRECO = "";             // ex.: "R$ 49,90"
+const PRECO_NOTA = "";        // ex.: "ou 6x no cartão"
+/* ===================================================================================== */
+(function(){
+  document.getElementById('ano').textContent = new Date().getFullYear();
+  const cta = document.getElementById('ctaCompra');
+  if (CHECKOUT_URL) {
+    cta.href = CHECKOUT_URL;
+  } else {
+    cta.textContent = 'Vendas abrem em breve';
+    cta.setAttribute('aria-disabled','true'); cta.removeAttribute('target');
+  }
+  if (PRECO) {
+    const p = document.getElementById('preco');
+    p.firstChild.textContent = PRECO;
+  }
+  if (PRECO_NOTA) document.getElementById('precoNota').textContent = PRECO_NOTA;
+
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), {rootMargin:'0px 0px -8% 0px'}) : null;
+  document.querySelectorAll('.reveal').forEach(el => io ? io.observe(el) : el.classList.add('in'));
+
+  const cover = document.getElementById('cover');
+  if (matchMedia('(hover:hover) and (prefers-reduced-motion:no-preference)').matches) {
+    cover.parentElement.addEventListener('mousemove', e => {
+      const r = cover.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+      cover.style.transform = `rotateY(${-16 + x*14}deg) rotateX(${4 - y*10}deg)`;
+    });
+    cover.parentElement.addEventListener('mouseleave', () => cover.style.transform = '');
+  }
+})();
+</script>
+</body>
+</html>
