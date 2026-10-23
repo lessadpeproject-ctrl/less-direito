@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Compra confirmada · Less Direito</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap">
+<style>
+:root{--bg:#0A0A0A;--surface:#141414;--line:#2D2A28;--text:#F3F1ED;--muted:#A39E98;--red:#B3141B;--red-hi:#E2474E;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 "Poppins",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-left,0px)) 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+header img{height:34px}
+.ok{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#9fd19f}
+.ok::before{content:"✓";display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#1f3a1f;color:#9fd19f;letter-spacing:0}
+.kicker{font-size:11px;letter-spacing:.32em;text-transform:uppercase;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:10px;margin:40px 0 0}
+.kicker::before{content:"";width:34px;height:2px;background:var(--red)}
+h1{font-weight:900;text-transform:lowercase;letter-spacing:-.05em;line-height:.9;font-size:clamp(40px,7vw,76px);margin:14px 0 16px}
+h1 em{font-style:normal;color:var(--red-hi)}
+.sub{color:#D3CEC8;max-width:40em;margin:0 0 26px;font-size:clamp(15px,1.6vw,18px)}
+.card{display:grid;grid-template-columns:1.1fr .9fr;border:1px solid var(--red);background:var(--surface)}
+.card .l{padding:28px}
+.card .r{padding:28px;background:linear-gradient(180deg,rgba(10,10,10,.5),rgba(10,10,10,.92)),url(/img/skills.jpg) center 30%/cover;display:flex;flex-direction:column;justify-content:center;gap:14px;border-left:1px solid var(--line)}
+ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+li{display:grid;grid-template-columns:22px 1fr;gap:10px;font-size:14.5px}
+li::before{content:"✓";color:var(--red-hi);font-weight:900}
+li small{display:block;color:var(--muted);font-size:12.5px}
+.price{font-size:clamp(42px,6vw,58px);font-weight:900;letter-spacing:-.05em;line-height:1}
+.price s{font-size:.4em;color:var(--muted);font-weight:600;letter-spacing:0;margin-right:8px}
+.price small{display:block;font-size:13px;font-weight:600;letter-spacing:0;color:var(--muted);margin-top:8px}
+[id^="kiwify-upsell-trigger"]{width:100%;font:800 16px "Poppins",sans-serif!important;border:0;border-radius:999px;padding:16px 20px;cursor:pointer;background:var(--red)!important;color:#fff!important}
+[id^="kiwify-upsell-cancel-trigger"]{margin-top:12px;text-align:center;font-size:13px;color:var(--muted);text-decoration:underline;cursor:pointer}
+.steps{margin-top:30px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.steps div{border-top:2px solid var(--red);padding-top:12px;font-size:13.5px;color:#D3CEC8}
+.steps b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+@media (max-width:760px){.card{grid-template-columns:1fr}.card .r{border-left:0;border-top:1px solid var(--line)}.steps{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><img src="/img/logo.png" alt="Less Direito" width="36" height="34"><span class="ok">compra confirmada</span></header>
+
+  <p class="kicker">espere · oferta única desta página</p>
+  <h1>leve o processo <em>inteiro</em> por + r$ 34</h1>
+  <p class="sub">Seu plano Completo já está garantido. Antes de entrar, você pode liberar o <b>PRO</b> na mesma conta, com 1 clique e sem digitar o cartão de novo. Esta oferta só aparece agora.</p>
+
+  <div class="card">
+    <div class="l">
+      <ul>
+        <li><span>Peças e recursos<small>23 prompts-mestre: contestação, réplica, embargos, apelação, agravos, recurso inominado, RO, REsp, RE, habeas corpus e mais</small></span></li>
+        <li><span>Kit Escritório Digital<small>12 skills extras: prazos, honorários, procuração, notificação, parecer, audiência, acordo e outras</small></span></li>
+        <li><span>Pack Atendimento e WhatsApp<small>40 mensagens prontas para clientes</small></span></li>
+        <li><span>Pack OAB e Concursos<small>projetos de estudo para 1ª e 2ª fase e concursos</small></span></li>
+        <li><span>Gerador com IA em dobro<small>100 prompts por dia</small></span></li>
+      </ul>
+    </div>
+    <div class="r">
+      <div class="price"><s>R$ 59,90</s>+ R$ 34<small>Pagamento único, no mesmo meio de pagamento da sua compra.</small></div>
+      <div id="kiwify-upsell-0p79H6u" data-upsell-url="" data-downsell-url="" style="--kiwify-upsell-accept-bg:#b3141b;--kiwify-upsell-accept-color:#FFFFFF">
+        <button id="kiwify-upsell-trigger-0p79H6u">Sim! Quero liberar o PRO por + R$ 34</button>
+        <div id="kiwify-upsell-cancel-trigger-0p79H6u">Não, obrigado. Vou ficar só com o Completo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div><b>1. Seu e-mail</b>A Kiwify envia o acesso à área de membros com o guia em PDF.</div>
+    <div><b>2. Primeiro acesso</b>Em less-direito.netlify.app/app, use o e-mail e o CPF da compra para criar sua senha.</div>
+    <div><b>3. Comece</b>Gere seus prompts, leia o guia e instale as skills no Claude.</div>
+  </div>
+</div>
+<script src="https://snippets.kiwify.com/upsell-v2/upsell.min.js"></script>
+</body>
+</html>
