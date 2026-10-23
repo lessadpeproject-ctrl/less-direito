@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { admin, cors, json } from "./_shared.ts";
 
 // Gerador universal: transforma o pedido do usuário em um prompt completo usando o Gemini.
-const LIMITE_DIA = 40;
+const LIMITE_COMPLETO = 40, LIMITE_PRO = 100;
 
 const SISTEMA = `Você é um engenheiro de prompts especializado em trabalho jurídico no Brasil.
 Sua tarefa é ESCREVER UM PROMPT (não executar a tarefa) que o usuário vai colar no Claude.
@@ -24,8 +24,9 @@ Deno.serve(async (req) => {
   const user = u?.user;
   if (!user?.email) return json({ erro: "Faça login novamente." }, 401);
 
-  const { data: c } = await sb.from("compradores").select("status").eq("email", user.email.toLowerCase()).maybeSingle();
+  const { data: c } = await sb.from("compradores").select("status, plano").eq("email", user.email.toLowerCase()).maybeSingle();
   if (!c || c.status !== "ativo") return json({ erro: "Seu acesso não está ativo." }, 403);
+  const LIMITE_DIA = c.plano === "pro" ? LIMITE_PRO : LIMITE_COMPLETO;
 
   const desde = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const { count } = await sb.from("uso_gerador").select("id", { count: "exact", head: true })

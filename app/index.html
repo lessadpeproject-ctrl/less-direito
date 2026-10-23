@@ -180,6 +180,11 @@ input[type=email],input[type=password]{width:100%;background:var(--surface-2);co
 .mat .panel h3{margin-bottom:8px}
 .mat .panel p{color:#cfcac4;font-size:13.5px;margin:0 0 14px}
 .loading{padding:40px 0;color:var(--muted)}
+.pro-tag{display:inline-block;font:800 9.5px/1 var(--body);letter-spacing:.14em;color:#fff;background:var(--red);padding:3px 6px;border-radius:3px;vertical-align:middle}
+.lock{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:22px;align-items:center;border:1px solid var(--red);background:var(--surface);padding:28px}
+.lock h3{font:900 30px/.95 var(--display);letter-spacing:-.04em;text-transform:lowercase;margin:6px 0 10px}
+.lock ul{margin:0;padding-left:18px;color:#d8d3cd;font-size:14px}
+@media (max-width:900px){.lock{grid-template-columns:1fr}}
 .leitor{margin-top:18px;border:1px solid var(--line);background:var(--surface)}
 .leitor .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);font-size:13px}
 .leitor iframe{display:block;width:100%;height:min(82vh,1100px);border:0;background:#525659}
@@ -200,11 +205,12 @@ body.logado #app{padding-top:28px}
     <nav class="tabs" aria-label="Ferramentas" id="nav" hidden>
       <button type="button" data-tool="universal" aria-selected="false">Universal</button>
       <button type="button" data-tool="peticoes" aria-selected="true">Petições</button>
+      <button type="button" data-tool="pecas" aria-selected="false">Peças e recursos <small class="pro-tag">PRO</small></button>
       <button type="button" data-tool="estudo" aria-selected="false">Estudo</button>
       <button type="button" data-tool="skills" aria-selected="false">Skills</button>
       <button type="button" data-tool="materiais" aria-selected="false">Guia e materiais</button>
     </nav>
-    <div class="userbar" id="userbar"><span id="userEmail"></span><button type="button" id="btnSair" hidden>Sair</button><button type="button" id="btnEntrarTopo">Entrar</button></div>
+    <div class="userbar" id="userbar"><span class="pro-tag" id="planoTag" hidden>PRO</span><span id="userEmail"></span><button type="button" id="btnSair" hidden>Sair</button><button type="button" id="btnEntrarTopo">Entrar</button></div>
   </div>
 </header>
 
@@ -363,6 +369,50 @@ Família: mãe (diarista, renda variável ~R$ 900), avó (aposentada, 1 salário
           <a class="btn" href="https://claude.ai/new" target="_blank" rel="noopener">Abrir o Claude ↗</a>
         </div>
         <p class="note">Cole dentro de um Projeto da área, com suas peças-modelo e a legislação nos arquivos. Leis e entendimentos mudam: confira cada artigo e pesquise a jurisprudência atual antes de protocolar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PEÇAS E RECURSOS (PRO) -->
+  <section class="bench" id="pecas" data-panel="pecas" hidden>
+    <div class="bench-head">
+      <div><div class="kicker">gerador de prompt-mestre · pro</div><h2>peças e recursos</h2>
+      <p>Contestação, réplica, manifestações, embargos, apelação, agravos, recursos dos Juizados, da Justiça do Trabalho, criminais e dos tribunais superiores. O prompt começa pela admissibilidade e pelo prazo, ataca a decisão ou a peça contrária ponto a ponto e só redige depois que você aprovar a estratégia.</p></div>
+    </div>
+    <div id="pecasLock" class="lock" hidden>
+      <div><div class="kicker">exclusivo do plano pro</div><h3>libere peças e recursos</h3>
+        <ul><li>23 prompts-mestre de defesa, réplica, manifestações e recursos</li><li>Kit Escritório Digital: 12 skills extras</li><li>Pack Atendimento e WhatsApp + Pack OAB e Concursos</li><li>Gerador com IA: 100 prompts por dia</li></ul></div>
+      <div><a class="btn primary" id="btnUpgrade" href="/#oferta" target="_blank" rel="noopener">Quero o PRO</a><p class="hint" style="font-size:12px;color:var(--muted);margin:10px 0 0">Use o mesmo e-mail desta conta na compra. O acesso é liberado automaticamente.</p></div>
+    </div>
+    <div class="grid2" id="pecasApp" hidden>
+      <form class="panel" id="fPeca" autocomplete="off">
+        <span class="example">exemplo preenchido · troque pelos dados do seu caso</span>
+        <h3>1 · peça</h3>
+        <div class="chips" id="pcFases" role="group" aria-label="Fase"></div>
+        <div class="field"><label for="pcSel">Peça ou recurso</label><select id="pcSel" size="7"></select><span class="hint" id="pcInfo"></span></div>
+        <h3>2 · o caso</h3>
+        <div class="row">
+          <div class="field"><label for="pcPos">Seu cliente é</label><input type="text" id="pcPos" value="réu (consumidor), [CLIENTE]"></div>
+          <div class="field"><label for="pcCidade">Cidade/UF</label><input type="text" id="pcCidade" value="Camaçari/BA"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="pcJuizo">Juízo / tribunal e rito</label><input type="text" id="pcJuizo" value="Vara Cível, procedimento comum"></div>
+          <div class="field"><label for="pcData">Data da intimação ou publicação</label><input type="text" id="pcData" placeholder="dd/mm/aaaa"></div>
+        </div>
+        <div class="field"><label for="pcAlvo">Decisão ou peça que você vai responder (resumo ou trecho, sem nomes)</label>
+          <textarea id="pcAlvo">Petição inicial de cobrança: o banco alega dívida de cartão de R$ 8.400,00 e juntou apenas extrato unilateral, sem contrato assinado nem comprovante de entrega do cartão.</textarea></div>
+        <div class="field"><label for="pcFatos">Fatos e provas do seu cliente</label><textarea id="pcFatos" style="min-height:70px">O cliente nunca solicitou o cartão; registrou reclamação no Procon em 03/2025 (protocolo em anexo); não há assinatura dele em nenhum documento.</textarea></div>
+        <div class="field"><label for="pcPontos">Pontos que você quer atacar ou defender</label><textarea id="pcPontos" style="min-height:60px">ausência de prova da contratação; inversão do ônus da prova; dano moral por cobrança indevida (reconvenção?)</textarea></div>
+        <div class="field"><label for="pcObj">Resultado que você busca</label><input type="text" id="pcObj" value="improcedência e reconhecimento da inexistência do débito"></div>
+      </form>
+      <div class="out">
+        <div class="bar"><b style="font-size:13px">Prompt gerado</b><span class="meta" id="pcMeta"></span></div>
+        <pre class="prompt" id="pcOut" tabindex="0"></pre>
+        <div class="btns" style="margin-top:10px">
+          <button type="button" class="btn primary" data-copy="pcOut">Copiar prompt</button>
+          <a class="btn" href="https://claude.ai/new" target="_blank" rel="noopener">Abrir o Claude ↗</a>
+        </div>
+        <p class="note">Anexe ao chat a decisão ou a peça contrária já anonimizada. Prazos e artigos aparecem como referência: confira sempre o rito, o calendário do tribunal e a jurisprudência atual.</p>
       </div>
     </div>
   </section>
@@ -536,7 +586,7 @@ function openTool(k,scroll){
 }
 $$('[data-tool]').forEach(b=>b.addEventListener('click',()=>openTool(b.dataset.tool,true)));
 let start='universal'; const h=location.hash.replace('#','');
-if(['universal','peticoes','estudo','skills','materiais'].includes(h)) start=h; else {try{start=localStorage.getItem('ld_tool')||start}catch(e){}}
+if(['universal','peticoes','pecas','estudo','skills','materiais'].includes(h)) start=h; else {try{start=localStorage.getItem('ld_tool')||start}catch(e){}}
 openTool(start,false);
 
 /* ---------- 3D tilt ---------- */
@@ -737,7 +787,8 @@ renderTemas(); genEst();
 
 /* ---------- SKILLS ---------- */
 const skKeys=Object.keys(SK);
-(function(){const s=$('#skSel');skKeys.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=SK[k].titulo;s.appendChild(o)});
+(function(){const s=$('#skSel');skKeys.filter(k=>!SK[k].pro).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=SK[k].titulo;s.appendChild(o)});
+  const pk=skKeys.filter(k=>SK[k].pro);if(pk.length){const g=document.createElement('optgroup');g.label='Kit Escritório Digital (PRO)';pk.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=SK[k].titulo;g.appendChild(o)});s.appendChild(g)}
   const o=document.createElement('option');o.value='__nova';o.textContent='Criar uma skill do zero';s.appendChild(o);s.value='peticao-padrao-escritorio'})();
 function desc(md){const m=md.match(/description:\s*([\s\S]*?)\n---/);return m?m[1].replace(/\s+/g,' ').trim():''}
 function renderExtra(){const k=v('skSel');const box=$('#skExtra');box.innerHTML='';
@@ -845,15 +896,79 @@ async function aplicar(session){
   $('#btnSair').hidden=!logado;$('#btnEntrarTopo').hidden=logado;$('#userEmail').textContent=logado?session.user.email:'';
   if(!logado){$('#gate').hidden=false;$('#app').hidden=true;$('#nav').hidden=true;$('#loading').hidden=true;window.scrollTo(0,0);return}
   $('#gate').hidden=true;$('#loading').hidden=false;
-  const {data,error}=await sb.from('conteudo').select('dados').eq('id',1).maybeSingle();
+  const {data:rows,error}=await sb.from('conteudo').select('id,dados').order('id');
+  const data=(rows||[]).find(r=>r.id===1), pro=(rows||[]).find(r=>r.id===2);
+  const {data:eu}=await sb.from('compradores').select('plano').maybeSingle();
+  window.LD_PLANO=(eu&&eu.plano)||'completo'; window.LD_PRO=pro?pro.dados:null;
+  $('#planoTag').hidden=!window.LD_PRO;
   $('#loading').hidden=true;
   if(error||!data){document.body.classList.remove('logado');$('#gate').hidden=false;msg($('#msgEntrar'),'Seu acesso não está ativo. Se a compra foi reembolsada ou ainda está em análise, fale com o suporte.');return}
-  const d=data.dados;window.LD_ACOES=d.acoes;window.LD_AREA_NOTAS=d.notas;window.LD_TEMAS=d.temas;window.LD_SKILLS=d.skills;
+  const d=data.dados;window.LD_ACOES=d.acoes;window.LD_AREA_NOTAS=d.notas;window.LD_TEMAS=d.temas;window.LD_SKILLS=Object.assign({},d.skills,(window.LD_PRO&&window.LD_PRO.skills_pro)||{});
   $('#app').hidden=false;$('#nav').hidden=false;
   if(entrouAgora){entrouAgora=false;window.scrollTo(0,0)}
-  if(!iniciado){iniciado=true;iniciarFerramentas();iniciarExtras()}
+  if(!iniciado){iniciado=true;iniciarFerramentas();iniciarExtras();iniciarPecas()}
 }
 sb.auth.onAuthStateChange((_ev,session)=>{setTimeout(()=>aplicar(session),0)});
+
+function iniciarPecas(){
+  const P=window.LD_PRO; const v=window.LD_v;
+  if(!P){$('#pecasLock').hidden=false;$('#pecasApp').hidden=true;return}
+  $('#pecasLock').hidden=true;$('#pecasApp').hidden=false;
+  const L=P.pecas, fases=['Todas',...P.fases]; let fase='Todas';
+  function chips(){$('#pcFases').innerHTML='';fases.forEach(f=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=f;b.setAttribute('aria-pressed',String(f===fase));b.onclick=()=>{fase=f;chips();fill();gen()};$('#pcFases').appendChild(b)})}
+  function fill(keep){const s=$('#pcSel'),cur=keep||s.value;s.innerHTML='';
+    P.fases.forEach(f=>{if(fase!=='Todas'&&f!==fase)return;const g=document.createElement('optgroup');g.label=f;
+      L.forEach((x,i)=>{if(x.fase!==f)return;const o=document.createElement('option');o.value=i;o.textContent=x.nome+(x.area&&x.area!=='Todas'?' · '+x.area:'');g.appendChild(o)});s.appendChild(g)});
+    if(cur!==''&&[...s.options].some(o=>o.value===String(cur)))s.value=cur;else s.selectedIndex=0}
+  function gen(){const x=L[+$('#pcSel').value]||L[0];
+    $('#pcInfo').textContent='Base: '+x.base+' · Prazo de referência: '+x.prazo;
+    const resposta=/recurso|apela|agravo|embargos de declara|habeas/i.test(x.nome)?'a decisão recorrida':'a peça ou decisão a que vou responder';
+    const t=
+`Atue como advogado(a) sênior${x.area&&x.area!=='Todas'?' em '+x.area.toLowerCase():''}, com prática em ${v('pcCidade')||'[CIDADE/UF]'}. Vamos construir: ${x.nome.toUpperCase()}.
+Trabalhe em 5 etapas. Não pule etapas e espere minha resposta entre elas.
+
+DADOS DO CASO (com marcadores, sem nomes reais)
+- Meu cliente: ${v('pcPos')||'[POSIÇÃO DO CLIENTE]'}
+- Juízo / tribunal e rito: ${v('pcJuizo')||'[JUÍZO E RITO]'}
+- Data da intimação ou publicação: ${v('pcData')||'[DATA]'}
+- O que vou responder: ${v('pcAlvo')||'[RESUMO DA DECISÃO OU DA PEÇA CONTRÁRIA]'}
+- Fatos e provas do meu cliente: ${v('pcFatos')||'[FATOS E PROVAS]'}
+- Pontos a atacar ou defender: ${v('pcPontos')||'[PONTOS]'}
+- Resultado buscado: ${v('pcObj')||'[RESULTADO]'}
+(Se eu anexar o documento completo, use-o como fonte principal.)
+
+ETAPA 1 — ADMISSIBILIDADE E PRAZO
+a) Confirme se ${x.nome} é a medida cabível. Se outra for mais adequada, diga qual e por quê.
+b) Base legal de referência: ${x.base} (CONFERIR).
+c) Prazo de referência: ${x.prazo}. Calcule o vencimento a partir da data informada, diga se a contagem é em dias úteis ou corridos e liste o que devo conferir (feriados, suspensões, prazo em dobro).
+d) Requisitos formais: preparo, custas, depósitos, peças obrigatórias, regularidade da representação.
+
+ETAPA 2 — ANÁLISE DE ${resposta.toUpperCase()}
+Divida em capítulos ou fundamentos. Para cada um: o que diz, se é favorável ou desfavorável ao meu cliente, e o argumento para enfrentá-lo ou mantê-lo.
+
+ETAPA 3 — ESTRATÉGIA (espere minha aprovação)
+- Teses principais e subsidiárias, com fundamento legal.
+- Pontos de atenção desta peça:
+${x.foco.map(f=>'  • '+f).join('\n')}
+- Pedidos em ordem lógica.
+- Provas e documentos a juntar.
+
+ETAPA 4 — PEÇA COMPLETA (após eu aprovar)
+Estrutura completa: endereçamento, qualificação com marcadores, síntese, preliminares (se houver), mérito por tópicos com títulos, pedidos numerados e fechamento. Frases curtas, parágrafos de até 5 linhas, sem adjetivos ofensivos à parte contrária ou ao juízo.
+
+ETAPA 5 — CHECAGEM
+a) Tabela "argumento | fundamento | prova ou trecho dos autos".
+b) Lista do que conferir antes de protocolar (prazo, preparo, anexos, assinatura).
+
+REGRAS
+- Jurisprudência: NÃO cite julgados de memória. Onde um precedente ajudar, escreva [PESQUISAR: tema + termos de busca sugeridos].
+- Marque CONFERIR em cada artigo de lei e em cada prazo.
+- Se algum dado for incerto, pergunte em vez de supor.
+- Nunca prometa resultado.`;
+    $('#pcOut').textContent=t;$('#pcMeta').textContent=t.split(/\s+/).length+' palavras'}
+  chips();fill('0');gen();
+  $('#pcSel').addEventListener('change',gen);$('#fPeca').addEventListener('input',gen);
+}
 
 function iniciarExtras(){
   const toast=window.LD_toast,v=window.LD_v;
