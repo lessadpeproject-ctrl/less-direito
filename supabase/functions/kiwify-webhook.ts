@@ -44,7 +44,8 @@ Deno.serve(async (req) => {
 
   if (["paid", "approved", "order_approved"].includes(status) || evento === "order_approved") {
     const cpf = soDigitos(cliente.CPF ?? cliente.cpf);
-    const virouPro = tipo === "pro" || tipo === "upgrade" || atual?.plano === "pro";
+    // upgrade só vale para quem já tem uma compra registrada
+    const virouPro = tipo === "pro" || (tipo === "upgrade" && !!atual) || atual?.plano === "pro";
     const registro: Record<string, unknown> = {
       email,
       nome: cliente.full_name ?? cliente.name ?? null,
