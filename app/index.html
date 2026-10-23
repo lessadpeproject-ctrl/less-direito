@@ -180,6 +180,9 @@ input[type=email],input[type=password]{width:100%;background:var(--surface-2);co
 .mat .panel h3{margin-bottom:8px}
 .mat .panel p{color:#cfcac4;font-size:13.5px;margin:0 0 14px}
 .loading{padding:40px 0;color:var(--muted)}
+.leitor{margin-top:18px;border:1px solid var(--line);background:var(--surface)}
+.leitor .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.leitor iframe{display:block;width:100%;height:min(82vh,1100px);border:0;background:#525659}
 .quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
 @media (max-width:900px){.gate{grid-template-columns:1fr}.mat{grid-template-columns:1fr}.plates{grid-template-columns:1fr 1fr}}
 @media (max-width:640px){.plates{grid-template-columns:1fr}}
@@ -199,7 +202,7 @@ body.logado #app{padding-top:28px}
       <button type="button" data-tool="peticoes" aria-selected="true">Petições</button>
       <button type="button" data-tool="estudo" aria-selected="false">Estudo</button>
       <button type="button" data-tool="skills" aria-selected="false">Skills</button>
-      <button type="button" data-tool="materiais" aria-selected="false">Materiais</button>
+      <button type="button" data-tool="materiais" aria-selected="false">Guia e materiais</button>
     </nav>
     <div class="userbar" id="userbar"><span id="userEmail"></span><button type="button" id="btnSair" hidden>Sair</button><button type="button" id="btnEntrarTopo">Entrar</button></div>
   </div>
@@ -489,13 +492,17 @@ Nunca prometa resultado.</textarea></div>
 
   <section class="bench" id="materiais" data-panel="materiais" hidden>
     <div class="bench-head">
-      <div><div class="kicker">seus materiais</div><h2>downloads</h2>
-      <p>Tudo o que veio com a sua compra. Baixe quantas vezes quiser.</p></div>
+      <div><div class="kicker">seus materiais</div><h2>guia e materiais</h2>
+      <p>Tudo o que veio com a sua compra. Leia o guia aqui mesmo ou baixe quantas vezes quiser.</p></div>
     </div>
     <div class="mat">
-      <div class="panel"><h3>guia em pdf</h3><p>"Claude no Direito": ética e sigilo, Projetos, skills, conectores, petições e rotinas.</p><button type="button" class="btn primary" id="btnPdf">Baixar o guia</button><p class="msg" id="msgPdf" role="status"></p></div>
+      <div class="panel"><h3>guia em pdf</h3><p>"Claude no Direito": ética e sigilo, Projetos, skills, conectores, Claude no Chrome, petições e rotinas.</p><div class="btns"><button type="button" class="btn primary" id="btnLer">Ler aqui</button><button type="button" class="btn" id="btnPdf">Baixar o PDF</button></div><p class="msg" id="msgPdf" role="status"></p></div>
       <div class="panel"><h3>kit de skills</h3><p>As 8 skills jurídicas em um único .zip, prontas para enviar no Claude (uma por vez).</p><button type="button" class="btn primary" id="btnKit">Baixar o kit</button></div>
       <div class="panel"><h3>suporte</h3><p>Dúvidas sobre o acesso ou a compra? Fale com a gente pelo Instagram <b>@lessdireito</b>.</p><a class="btn" href="https://instagram.com/lessdireito" target="_blank" rel="noopener">Abrir Instagram ↗</a></div>
+    </div>
+    <div class="leitor" id="leitor" hidden>
+      <div class="bar"><b>Claude no Direito · guia completo</b><span class="btns"><a class="btn" id="lerNovaAba" href="#" target="_blank" rel="noopener">Abrir em tela cheia ↗</a><button type="button" class="btn" id="btnFecharLeitor">Fechar</button></span></div>
+      <iframe id="leitorFrame" title="Guia Claude no Direito" loading="lazy"></iframe>
     </div>
   </section>
   </div>
@@ -855,6 +862,12 @@ function iniciarExtras(){
     const {data,error}=await sb.storage.from('materiais').createSignedUrl('Claude_no_Direito.pdf',600,{download:'Claude_no_Direito_Less_Direito.pdf'});
     if(error||!data)return msg(m,'O guia ainda não está disponível. Tente mais tarde ou fale com o suporte.');
     msg(m,'',true);location.href=data.signedUrl});
+  $('#btnLer').addEventListener('click',async()=>{const m=$('#msgPdf');msg(m,'Abrindo o guia...',true);
+    const {data,error}=await sb.storage.from('materiais').createSignedUrl('Claude_no_Direito.pdf',3600);
+    if(error||!data)return msg(m,'O guia ainda não está disponível. Tente mais tarde ou fale com o suporte.');
+    msg(m,'',true);$('#leitorFrame').src=data.signedUrl+'#view=FitH';$('#lerNovaAba').href=data.signedUrl;
+    $('#leitor').hidden=false;$('#leitor').scrollIntoView({behavior:'smooth',block:'start'})});
+  $('#btnFecharLeitor').addEventListener('click',()=>{$('#leitor').hidden=true;$('#leitorFrame').src='about:blank'});
   $('#btnKit').addEventListener('click',async()=>{const z=new JSZip();
     Object.entries(window.LD_SKILLS).forEach(([k,s])=>{const zz=new JSZip();zz.file(k+'/SKILL.md',s.md);Object.entries(s.files||{}).forEach(([f,c])=>zz.file(k+'/'+f,c));z.file(k+'.zip',zz.generateAsync({type:'uint8array'}))});
     window.LD_baixar(await z.generateAsync({type:'blob'}),'Kit_8_skills_Less_Direito.zip');toast('Download iniciado')});
