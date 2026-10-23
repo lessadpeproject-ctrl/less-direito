@@ -19,6 +19,7 @@
   --r:4px; color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.6;margin:0;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-font-smoothing:antialiased}
@@ -182,9 +183,16 @@ input[type=email],input[type=password]{width:100%;background:var(--surface-2);co
 .quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
 @media (max-width:900px){.gate{grid-template-columns:1fr}.mat{grid-template-columns:1fr}.plates{grid-template-columns:1fr 1fr}}
 @media (max-width:640px){.plates{grid-template-columns:1fr}}
+/* estados: verificando sessão / fora / dentro */
+body:not(.logado) .hero{display:none}
+body.verificando #gate{display:none!important}
+body:not(.logado) .gate{grid-template-columns:minmax(0,440px);justify-content:center;border-top:0;padding-block:min(10vh,90px) 80px}
+body:not(.logado) .gate .buy,body:not(.logado) #btnEntrarTopo{display:none}
+.gate .back{font-size:13px;color:var(--muted);margin:18px 0 0;text-align:center}
+.gate .back a{color:var(--text);font-weight:600}
 </style>
 </head>
-<body>
+<body class="verificando">
 
 <header class="top">
   <div class="wrap">
@@ -249,6 +257,7 @@ input[type=email],input[type=password]{width:100%;background:var(--surface-2);co
         <button class="btn primary" type="submit" id="btnCriar">Criar meu acesso</button>
         <p class="msg" id="msgCriar" role="status"></p>
       </form>
+      <p class="back">Ainda não tem acesso? <a href="/#oferta">Conheça o guia + plataforma</a></p>
     </div>
     <div class="panel buy">
       <div><div class="kicker">ainda não tem acesso?</div>
@@ -258,7 +267,7 @@ input[type=email],input[type=password]{width:100%;background:var(--surface-2);co
       <p class="hint" style="font-size:12px;color:var(--muted);margin:10px 0 0">Depois do pagamento, volte aqui e clique em "Primeiro acesso".</p></div>
     </div>
   </section>
-  <div class="loading" id="loading" hidden>Carregando suas ferramentas...</div>
+  <div class="loading" id="loading">Carregando suas ferramentas...</div>
   <div id="app" hidden>
   <section class="plates" aria-label="Escolha a ferramenta">
     <button type="button" class="plateBtn tilt" data-max="6" data-tool="universal" aria-selected="false" style="background-image:url(/img/universal.jpg)">
@@ -797,7 +806,7 @@ window.LD_toast=toast; window.LD_v=v;
 const SUPA_URL='https://uqljwhehtpsiqzrlcavs.supabase.co', SUPA_KEY='sb_publishable_3QvEEikisHwRSNivi-8VdQ_rVhiqYOc';
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-let iniciado=false;
+let iniciado=false, entrouAgora=false;
 function msg(el,t,ok){el.textContent=t;el.className='msg '+(ok?'ok':'err')}
 
 /* abas do login */
@@ -807,9 +816,10 @@ $$('.seg button').forEach(b=>b.addEventListener('click',()=>{
   $('#btnCriar').textContent=b.dataset.esqueci?'Definir nova senha':'Criar meu acesso';
   $('#txtCriar').textContent=b.dataset.esqueci?'Confirme o e-mail e o CPF da compra e escolha uma nova senha.':'Use o mesmo e-mail e o CPF informados na compra. Você escolhe a sua senha agora.';
 }));
-$('#btnEntrarTopo').addEventListener('click',()=>{$('#gate').scrollIntoView({behavior:'smooth'});$('#inEmail').focus()});
+$('#btnEntrarTopo').addEventListener('click',()=>{window.scrollTo({top:0,behavior:'smooth'});$('#inEmail').focus()});
 
 $('#fEntrar').addEventListener('submit',async e=>{e.preventDefault();const m=$('#msgEntrar');msg(m,'Entrando...',true);
+  entrouAgora=true;
   const {error}=await sb.auth.signInWithPassword({email:$('#inEmail').value.trim(),password:$('#inSenha').value});
   if(error)msg(m,error.message.includes('Invalid')?'E-mail ou senha incorretos. Se é sua primeira vez, use "Primeiro acesso".':error.message);else msg(m,'',true)});
 
@@ -820,7 +830,7 @@ $('#fCriar').addEventListener('submit',async e=>{e.preventDefault();const m=$('#
   msg(m,'Conferindo sua compra...',true);
   try{const r=await fetch(SUPA_URL+'/functions/v1/acesso',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPA_KEY},body:JSON.stringify({email,cpf,senha:s1})});
     const d=await r.json().catch(()=>({}));if(!r.ok)return msg(m,d.erro||'Não foi possível criar o acesso.');
-    msg(m,'Acesso criado! Entrando...',true);
+    msg(m,'Acesso criado! Entrando...',true);entrouAgora=true;
     const {error}=await sb.auth.signInWithPassword({email,password:s1});if(error)msg(m,error.message)}
   catch(err){msg(m,'Sem conexão. Tente de novo.')}});
 
@@ -828,14 +838,16 @@ $('#btnSair').addEventListener('click',()=>sb.auth.signOut());
 
 async function aplicar(session){
   const logado=!!session;
+  document.body.classList.remove('verificando');document.body.classList.toggle('logado',logado);
   $('#btnSair').hidden=!logado;$('#btnEntrarTopo').hidden=logado;$('#userEmail').textContent=logado?session.user.email:'';
-  if(!logado){$('#gate').hidden=false;$('#app').hidden=true;$('#nav').hidden=true;$('#loading').hidden=true;return}
+  if(!logado){$('#gate').hidden=false;$('#app').hidden=true;$('#nav').hidden=true;$('#loading').hidden=true;window.scrollTo(0,0);return}
   $('#gate').hidden=true;$('#loading').hidden=false;
   const {data,error}=await sb.from('conteudo').select('dados').eq('id',1).maybeSingle();
   $('#loading').hidden=true;
-  if(error||!data){$('#gate').hidden=false;msg($('#msgEntrar'),'Seu acesso não está ativo. Se a compra foi reembolsada ou ainda está em análise, fale com o suporte.');return}
+  if(error||!data){document.body.classList.remove('logado');$('#gate').hidden=false;msg($('#msgEntrar'),'Seu acesso não está ativo. Se a compra foi reembolsada ou ainda está em análise, fale com o suporte.');return}
   const d=data.dados;window.LD_ACOES=d.acoes;window.LD_AREA_NOTAS=d.notas;window.LD_TEMAS=d.temas;window.LD_SKILLS=d.skills;
   $('#app').hidden=false;$('#nav').hidden=false;
+  if(entrouAgora){entrouAgora=false;window.scrollTo(0,0)}
   if(!iniciado){iniciado=true;iniciarFerramentas();iniciarExtras()}
 }
 sb.auth.onAuthStateChange((_ev,session)=>{setTimeout(()=>aplicar(session),0)});
