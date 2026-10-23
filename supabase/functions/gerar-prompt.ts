@@ -32,8 +32,9 @@ Deno.serve(async (req) => {
     .eq("user_id", user.id).gte("criado_em", desde);
   if ((count ?? 0) >= LIMITE_DIA) return json({ erro: `Limite de ${LIMITE_DIA} prompts por dia atingido. Volte amanhã.`, codigo: "limite" }, 429);
 
-  const chave = Deno.env.get("GEMINI_API_KEY");
-  if (!chave) return json({ erro: "Gerador com IA ainda não configurado.", codigo: "sem_chave" }, 503);
+  // Várias chaves: GEMINI_API_KEY, GEMINI_API_KEY_2, GEMINI_API_KEY_3... Se uma estourar o limite, usa a próxima.
+  const chaves = ["", "_2", "_3", "_4", "_5"].map((s) => Deno.env.get("GEMINI_API_KEY" + s)).filter((k): k is string => !!k);
+  if (!chaves.length) return json({ erro: "Gerador com IA ainda não configurado.", codigo: "sem_chave" }, 503);
 
   let e: Record<string, unknown> = {};
   try { e = await req.json(); } catch { return json({ erro: "Dados inválidos." }, 400); }
@@ -48,18 +49,40 @@ TOM: ${e.tom || "profissional"}
 NÍVEL DE DETALHE: ${e.nivel || "completo"}
 DETALHES EXTRAS: ${String(e.detalhes ?? "").slice(0, 2000) || "nenhum"}`;
 
-  const modelo = Deno.env.get("GEMINI_MODEL") || "gemini-flash-latest";
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": chave },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SISTEMA }] },
-      contents: [{ role: "user", parts: [{ text: pedido }] }],
-      generationConfig: { temperature: 0.6, maxOutputTokens: 4096 },
-    }),
+  // Modelos em ordem de preferência: se um estiver sobrecarregado, tenta o próximo.
+  const modelos = [...new Set([Deno.env.get("GEMINI_MODEL") || "gemini-flash-latest", "gemini-2.5-flash", "gemini-flash-lite-latest"])];
+  const corpo = JSON.stringify({
+    systemInstruction: { parts: [{ text: SISTEMA }] },
+    contents: [{ role: "user", parts: [{ text: pedido }] }],
+    generationConfig: { temperature: 0.6, maxOutputTokens: 4096 },
   });
-  const dados = await r.json().catch(() => ({}));
-  if (!r.ok) return json({ erro: "O Gemini recusou o pedido: " + (dados?.error?.message ?? r.status), codigo: "gemini" }, 502);
+  // deno-lint-ignore no-explicit-any
+  let dados: any = {};
+  let ok = false, status = 0;
+  tentativas:
+  for (const modelo of modelos) {
+    for (const chave of chaves) {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": chave },
+        body: corpo,
+      });
+      status = r.status;
+      dados = await r.json().catch(() => ({}));
+      if (r.ok) { ok = true; break tentativas; }
+      // modelo sobrecarregado ou indisponível: pula para o próximo modelo
+      if (r.status === 503 || r.status === 500 || r.status === 404) continue tentativas;
+      // cota estourada ou chave inválida/bloqueada: tenta a próxima chave
+      const chaveRuim = r.status === 400 && /api key/i.test(String(dados?.error?.message ?? ""));
+      if (chaveRuim || r.status === 429 || r.status === 401 || r.status === 403) continue;
+      break tentativas;
+    }
+  }
+  if (!ok) {
+    if (status === 429) return json({ erro: "O limite de uso da IA foi atingido agora. Tente de novo em alguns minutos.", codigo: "cota" }, 503);
+    if (status === 503 || status === 500) return json({ erro: "A IA está com muita procura neste momento. Tente de novo em instantes.", codigo: "ocupado" }, 503);
+    return json({ erro: "O Gemini recusou o pedido: " + (dados?.error?.message ?? status), codigo: "gemini" }, 502);
+  }
 
   const texto = (dados?.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string }) => p.text ?? "").join("").trim();
   if (!texto) return json({ erro: "O Gemini não devolveu texto. Tente reformular o pedido.", codigo: "vazio" }, 502);

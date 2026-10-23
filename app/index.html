@@ -902,6 +902,7 @@ ${jur?'- Não cite jurisprudência de memória; escreva [PESQUISAR: termos de bu
     try{const {data,error}=await sb.functions.invoke('gerar-prompt',{body:{objetivo:v('uniObj'),area:v('uniArea'),publico:v('uniPub'),formato:v('uniFmt'),tom:v('uniTom'),detalhes:v('uniDet')}});
       if(error){let d={};try{d=await error.context.json()}catch(_){}
         if(d.codigo==='sem_chave'){pinta(modelo(),'modelo sem IA');msg(m,'A IA ainda não está ativa. Mostramos o modelo pronto.',true)}
+        else if(d.codigo==='ocupado'||d.codigo==='cota'){pinta(modelo(),'modelo sem IA');msg(m,d.erro+' Enquanto isso, mostramos o modelo pronto.')}
         else msg(m,d.erro||'Não foi possível gerar agora. Use "Montar sem IA".');}
       else{pinta(data.prompt,`gerado com IA · ${data.restantes} restantes hoje`);msg(m,'',true)}}
     catch(err){msg(m,'Sem conexão. Tente de novo.')}
