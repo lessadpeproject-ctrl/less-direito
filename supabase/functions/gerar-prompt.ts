@@ -49,12 +49,17 @@ TOM: ${e.tom || "profissional"}
 NÍVEL DE DETALHE: ${e.nivel || "completo"}
 DETALHES EXTRAS: ${String(e.detalhes ?? "").slice(0, 2000) || "nenhum"}`;
 
-  // Modelos em ordem de preferência: se um estiver sobrecarregado, tenta o próximo.
-  const modelos = [...new Set([Deno.env.get("GEMINI_MODEL") || "gemini-flash-latest", "gemini-2.5-flash", "gemini-flash-lite-latest"])];
-  const corpo = JSON.stringify({
+  // Modelos em ordem de preferência (rápido primeiro). Se um estiver sobrecarregado, tenta o próximo.
+  const preferido = Deno.env.get("GEMINI_MODEL");
+  const modelos = [...new Set([...(preferido ? [preferido] : []), "gemini-2.5-flash", "gemini-flash-lite-latest", "gemini-flash-latest"])];
+  const corpoPara = (modelo: string) => JSON.stringify({
     systemInstruction: { parts: [{ text: SISTEMA }] },
     contents: [{ role: "user", parts: [{ text: pedido }] }],
-    generationConfig: { temperature: 0.6, maxOutputTokens: 4096 },
+    generationConfig: {
+      temperature: 0.6, maxOutputTokens: 4096,
+      // sem "raciocínio" longo no 2.5: a resposta sai em segundos
+      ...(modelo.startsWith("gemini-2.5") ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+    },
   });
   // deno-lint-ignore no-explicit-any
   let dados: any = {};
@@ -65,17 +70,16 @@ DETALHES EXTRAS: ${String(e.detalhes ?? "").slice(0, 2000) || "nenhum"}`;
       const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": chave },
-        body: corpo,
+        body: corpoPara(modelo),
       });
       status = r.status;
       dados = await r.json().catch(() => ({}));
       if (r.ok) { ok = true; break tentativas; }
-      // modelo sobrecarregado ou indisponível: pula para o próximo modelo
-      if (r.status === 503 || r.status === 500 || r.status === 404) continue tentativas;
-      // cota estourada ou chave inválida/bloqueada: tenta a próxima chave
       const chaveRuim = r.status === 400 && /api key/i.test(String(dados?.error?.message ?? ""));
+      // cota estourada ou chave inválida/bloqueada: tenta a próxima chave
       if (chaveRuim || r.status === 429 || r.status === 401 || r.status === 403) continue;
-      break tentativas;
+      // modelo sobrecarregado, indisponível ou com configuração recusada: pula para o próximo modelo
+      continue tentativas;
     }
   }
   if (!ok) {
